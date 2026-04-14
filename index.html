@@ -1,0 +1,912 @@
+<!DOCTYPE html>
+<!-- saved from url=(0052)file:///C:/Users/Utilisateur/Downloads/index_31.html -->
+<html lang="fr"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Outil Agent Immobilier</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:15px;color:#1a1a1a;background:#f5f4f0;min-height:100vh}
+.app{max-width:940px;margin:0 auto;padding:1rem 1rem 3rem}
+h1{font-size:20px;font-weight:600;margin-bottom:1.5rem;color:#111}
+.nav{display:flex;gap:0;margin-bottom:1.5rem;background:#fff;border:1px solid #e0ddd5;border-radius:10px;overflow:hidden}
+.nav-btn{flex:1;padding:12px;border:none;background:transparent;cursor:pointer;font-size:14px;font-weight:500;color:#666;transition:all .2s}
+.nav-btn.active{background:#1a1a1a;color:#fff}
+.section{display:none}.section.active{display:block}
+.year-bar{display:flex;align-items:center;gap:12px;background:#fff;border:1px solid #e0ddd5;border-radius:10px;padding:12px 16px;margin-bottom:1.25rem;flex-wrap:wrap}
+.year-bar label{font-size:14px;font-weight:500;white-space:nowrap}
+.year-bar input[type=number]{padding:7px 10px;border:1px solid #ccc;border-radius:7px;font-size:14px;width:110px}
+.year-note{font-size:12px;color:#777;flex:1;min-width:180px}
+.type-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:1.5rem}
+.type-card{background:#fff;border:1.5px solid #e0ddd5;border-radius:12px;padding:1.25rem;cursor:pointer;text-align:center;transition:all .2s}
+.type-card:hover{border-color:#aaa}
+.type-card.active{border-color:#185FA5;background:#f0f6ff}
+.type-icon{font-size:30px;margin-bottom:8px}
+.type-label{font-size:14px;font-weight:600}
+.checklist-container{display:none}
+.checklist-container.active{display:block}
+.progress-text{font-size:12px;color:#777;margin-bottom:6px}
+.progress-bar{width:100%;height:6px;background:#e0ddd5;border-radius:99px;margin-bottom:1.5rem;overflow:hidden}
+.progress-fill{height:100%;background:#185FA5;border-radius:99px;transition:width .3s}
+.category{margin-bottom:1rem;background:#fff;border:1px solid #e0ddd5;border-radius:12px;overflow:hidden}
+.cat-header{padding:10px 16px;background:#f5f4f0;font-size:12px;font-weight:600;color:#555;text-transform:uppercase;letter-spacing:.05em}
+.item{display:flex;align-items:center;gap:12px;padding:11px 16px;border-top:1px solid #f0ede5;transition:background .15s}
+.item:hover{background:#fafaf8}
+.item:first-of-type{border-top:none}
+.item.hidden{display:none!important}
+.item input[type=checkbox]{width:17px;height:17px;cursor:pointer;accent-color:#185FA5;flex-shrink:0}
+.item label{font-size:14px;cursor:pointer;line-height:1.4;flex:1;user-select:none}
+.item.checked label{color:#bbb;text-decoration:line-through}
+.badge{font-size:10px;border-radius:4px;padding:2px 7px;white-space:nowrap;font-weight:500}
+.br{background:#FCEBEB;color:#A32D2D}
+.bo{background:#EAF3DE;color:#3B6D11}
+.bz{background:#FAEEDA;color:#854F0B}
+/* DROPDOWN conformité */
+.dd-item{border-top:1px solid #f0ede5;background:#fff}
+.dd-trigger{display:flex;align-items:center;gap:12px;padding:11px 16px;cursor:pointer;transition:background .15s}
+.dd-trigger:hover{background:#fafaf8}
+.dd-trigger input[type=checkbox]{width:17px;height:17px;accent-color:#185FA5;flex-shrink:0}
+.dd-trigger label{font-size:14px;cursor:pointer;flex:1}
+.dd-trigger .arr{font-size:11px;color:#888;transition:transform .2s;flex-shrink:0;user-select:none}
+.dd-trigger.open .arr{transform:rotate(90deg)}
+.dd-trigger.checked label{color:#bbb;text-decoration:line-through}
+.sub-wrap{display:none;background:#fafaf8;border-top:1px solid #f0ede5}
+.sub-wrap.open{display:block}
+.sub-item{display:flex;align-items:center;gap:10px;padding:9px 16px 9px 44px;border-bottom:1px solid #f0ede5;cursor:pointer}
+.sub-item:last-child{border-bottom:none}
+.sub-item input[type=checkbox]{width:15px;height:15px;accent-color:#185FA5;flex-shrink:0}
+.sub-item label{font-size:13px;cursor:pointer;flex:1}
+.sub-item.checked label{color:#bbb;text-decoration:line-through}
+/* LOTISSEMENT */
+.loti-block{border-top:1px solid #f0ede5;padding:12px 16px;background:#fff}
+.loti-row{display:flex;align-items:center;gap:10px;margin-bottom:0}
+.loti-row label{font-size:14px;font-weight:500}
+.loti-sel{padding:7px 10px;border:1px solid #ccc;border-radius:7px;font-size:13px;background:#fff;cursor:pointer}
+.loti-fields{display:none;margin-top:10px;border-top:1px solid #f0ede5;padding-top:8px}
+.loti-fields.open{display:block}
+.loti-item{display:flex;align-items:center;gap:10px;padding:8px 0 8px 24px;border-bottom:1px solid #f0ede5;cursor:pointer}
+.loti-item:last-child{border-bottom:none}
+.loti-item input[type=checkbox]{width:15px;height:15px;accent-color:#185FA5;flex-shrink:0}
+.loti-item label{font-size:13px;cursor:pointer;flex:1}
+.loti-item.checked label{color:#bbb;text-decoration:line-through}
+.loti-txt-row{padding:8px 0 8px 24px;border-bottom:1px solid #f0ede5}
+.loti-txt-row:last-child{border-bottom:none}
+.loti-txt-row label{font-size:13px;color:#555;display:block;margin-bottom:4px}
+.loti-txt-row input[type=text]{padding:6px 8px;border:1px solid #ccc;border-radius:6px;font-size:13px;width:100%;max-width:300px}
+.actions{display:flex;gap:10px;margin-top:1.5rem;flex-wrap:wrap}
+.btn-p{background:#185FA5;color:#fff;border:none;padding:11px 22px;border-radius:8px;cursor:pointer;font-size:14px;font-weight:600}
+.btn-p:hover{background:#0C447C}
+a.btn-p{display:inline-block;text-decoration:none;color:#fff;}
+.btn-s{background:#fff;color:#333;border:1px solid #ccc;padding:11px 22px;border-radius:8px;cursor:pointer;font-size:14px}
+.btn-s:hover{background:#f5f4f0}
+/* FORMATION */
+.ftabs{display:flex;gap:0;margin-bottom:1.25rem;background:#fff;border:1px solid #e0ddd5;border-radius:8px;overflow:hidden;width:fit-content}
+.ftab{padding:8px 20px;border:none;background:transparent;cursor:pointer;font-size:14px;color:#666;font-weight:500}
+.ftab.active{background:#1a1a1a;color:#fff}
+.modnav{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:1.25rem}
+.modbtn{padding:7px 14px;border:1px solid #e0ddd5;border-radius:8px;background:#fff;cursor:pointer;font-size:13px;color:#555;font-weight:500}
+.modbtn:hover{background:#f5f4f0}
+.modbtn.active{background:#1a1a1a;color:#fff;border-color:#1a1a1a}
+.fiche{display:none}.fiche.active{display:block}
+.fh{margin-bottom:1.5rem}
+.fh .ft{font-size:20px;font-weight:600;margin-bottom:4px}
+.fh .fs{font-size:14px;color:#777}
+.cc{background:#fff;border:1px solid #e0ddd5;border-radius:12px;padding:1.25rem;margin-bottom:1rem}
+.cc h3{font-size:12px;font-weight:600;color:#888;text-transform:uppercase;letter-spacing:.05em;margin-bottom:12px}
+.tags{display:flex;flex-wrap:wrap;gap:6px}
+.tag{background:#f5f4f0;border:1px solid #e0ddd5;border-radius:6px;padding:4px 10px;font-size:13px}
+.tagh{background:#E6F1FB;border-color:#B5D4F4;color:#185FA5;font-weight:500}
+.kp{border-left:3px solid #185FA5;padding:10px 14px;background:#f9f9f7;border-radius:0 8px 8px 0;margin:8px 0;font-size:14px;line-height:1.6}
+.kpw{border-left-color:#EF9F27;background:#fffbf3}
+.kps{border-left-color:#639922;background:#f4faea}
+.slist{list-style:none;counter-reset:s;padding:0}
+.slist li{counter-increment:s;display:flex;gap:10px;align-items:flex-start;padding:9px 0;border-bottom:1px solid #f0ede5;font-size:14px;line-height:1.5}
+.slist li:last-child{border-bottom:none}
+.slist li::before{content:counter(s);min-width:22px;height:22px;background:#E6F1FB;color:#185FA5;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;flex-shrink:0;margin-top:1px}
+.blist{list-style:none;padding:0}
+.blist li{padding:7px 0;border-bottom:1px solid #f0ede5;font-size:14px;display:flex;align-items:flex-start;gap:8px;line-height:1.5}
+.blist li:last-child{border-bottom:none}
+.blist li::before{content:"";width:5px;height:5px;border-radius:50%;background:#185FA5;flex-shrink:0;margin-top:7px}
+.qb{font-style:italic;color:#555;border:1px solid #e0ddd5;border-radius:8px;padding:12px 16px;font-size:14px;line-height:1.6;margin:8px 0;background:#fafaf8}
+.mg{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-top:10px}
+.mc{border:1px solid #e0ddd5;border-radius:8px;padding:12px;font-size:13px}
+.mcf{border:2px solid #185FA5;background:#f0f6ff}
+.mc .mt{font-weight:600;margin-bottom:8px}
+.mcf .mt{color:#185FA5}
+.aqg{display:flex;flex-direction:column;gap:6px;margin-top:8px}
+.aqr{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:8px}
+.aqa{background:#EAF3DE}.aqb{background:#FAEEDA}.aqc{background:#FCEBEB}
+.aqr .al{font-size:16px;font-weight:600;min-width:20px}
+.aqa .al{color:#3B6D11}.aqb .al{color:#854F0B}.aqc .al{color:#A32D2D}
+.aqa span{color:#27500A;font-size:13px}.aqb span{color:#633806;font-size:13px}.aqc span{color:#791F1F;font-size:13px}
+/* QUIZ */
+.qlev{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:1rem}
+.lvbtn{padding:9px 20px;border:1.5px solid #e0ddd5;border-radius:8px;background:#fff;cursor:pointer;font-size:14px;font-weight:500;color:#555}
+.lvbtn.ld{border-color:#3B6D11;background:#EAF3DE;color:#3B6D11}
+.lvbtn.li{border-color:#185FA5;background:#E6F1FB;color:#185FA5}
+.lvbtn.la{border-color:#A32D2D;background:#FCEBEB;color:#A32D2D}
+.qthm{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:1.25rem}
+.thbtn{padding:6px 13px;border:1px solid #e0ddd5;border-radius:7px;background:#fff;cursor:pointer;font-size:13px;color:#555}
+.thbtn:hover{background:#f5f4f0}
+.thbtn.active{background:#1a1a1a;color:#fff;border-color:#1a1a1a}
+.qq{background:#fff;border:1px solid #e0ddd5;border-radius:12px;padding:1.25rem;margin-bottom:1rem}
+.qn{font-size:11px;font-weight:600;color:#888;text-transform:uppercase;letter-spacing:.04em;margin-bottom:8px}
+.qt{font-size:15px;font-weight:600;margin-bottom:14px;line-height:1.5}
+.qopts{display:flex;flex-direction:column;gap:6px}
+.qopt{display:flex;align-items:flex-start;gap:10px;padding:10px 12px;border:1px solid #e0ddd5;border-radius:8px;cursor:pointer;font-size:14px;line-height:1.4;background:#fff}
+.qopt:hover{background:#f5f4f0}
+.qopt.sel{border-color:#185FA5;background:#f0f6ff}
+.qopt.ok{border-color:#639922;background:#EAF3DE;color:#3B6D11;font-weight:500}
+.qopt.ko{border-color:#A32D2D;background:#FCEBEB;color:#A32D2D}
+.qopt input[type=radio]{margin-top:2px;accent-color:#185FA5;flex-shrink:0}
+.qfb{font-size:13px;margin-top:10px;padding:9px 12px;border-radius:8px;line-height:1.5;display:none}
+.qfb.ok{background:#EAF3DE;color:#27500A;display:block}
+.qfb.ko{background:#FCEBEB;color:#791F1F;display:block}
+.score{text-align:center;padding:2rem;background:#fff;border:1px solid #e0ddd5;border-radius:12px;margin-bottom:1.5rem}
+.snum{font-size:52px;font-weight:700;color:#185FA5}
+.slbl{font-size:14px;color:#666;margin-top:6px;line-height:1.6}
+.lbadge{display:inline-block;padding:3px 10px;border-radius:5px;font-size:12px;font-weight:600;margin-bottom:.75rem}
+.lbd{background:#EAF3DE;color:#3B6D11}
+.lbi{background:#E6F1FB;color:#185FA5}
+.lba{background:#FCEBEB;color:#A32D2D}
+</style>
+</head>
+<body>
+<div class="app">
+<h1>Outil Agent Immobilier</h1>
+<div class="nav">
+  <button class="nav-btn active" onclick="showSec(&#39;docs&#39;,this)">Documents vendeur</button>
+  <button class="nav-btn" onclick="showSec(&#39;formation&#39;,this)">Formation</button>
+</div>
+
+<!-- ======= DOCUMENTS ======= -->
+<div id="section-docs" class="section active">
+<p style="font-size:14px;color:#777;margin-bottom:1rem">Renseignez l'année de construction puis sélectionnez le type de bien.</p>
+
+<div class="year-bar">
+  <label for="yr">Année de construction :</label>
+  <input type="number" id="yr" placeholder="ex. 1985" min="1800" max="2025" oninput="applyYear()">
+  <span class="year-note" id="yrnote">Les diagnostics amiante et plomb seront filtrés automatiquement.</span>
+</div>
+
+<div class="type-grid">
+  <div class="type-card" onclick="selType(&#39;appart&#39;)" id="card-appart"><div class="type-icon">🏢</div><div class="type-label">Appartement</div></div>
+  <div class="type-card" onclick="selType(&#39;maison&#39;)" id="card-maison"><div class="type-icon">🏠</div><div class="type-label">Maison</div></div>
+  <div class="type-card" onclick="selType(&#39;terrain&#39;)" id="card-terrain"><div class="type-icon">🌿</div><div class="type-label">Terrain</div></div>
+</div>
+
+<!-- ==== APPARTEMENT ==== -->
+<div class="checklist-container" id="list-appart">
+<div class="progress-text" id="pt-appart">0 / 0 cochés</div>
+<div class="progress-bar"><div class="progress-fill" id="pf-appart" style="width:0%"></div></div>
+
+<div class="category"><div class="cat-header">Documents du propriétaire</div>
+  <div class="item"><input type="checkbox" id="cb1"><label for="cb1">Titre de propriété (acte notarié)</label><span class="badge br">Obligatoire</span></div>
+  <div class="item"><input type="checkbox" id="cb2"><label for="cb2">Justificatif d'identité (CNI ou passeport)</label><span class="badge br">Obligatoire</span></div>
+  <div class="item"><input type="checkbox" id="cb3"><label for="cb3">Acte de mariage / PACS / jugement de divorce</label><span class="badge bo">Si applicable</span></div>
+  <div class="item"><input type="checkbox" id="cb4"><label for="cb4">Livret de famille (si succession)</label><span class="badge bo">Si applicable</span></div>
+</div>
+
+<div class="category"><div class="cat-header">Documents de la copropriété</div>
+  <div class="item"><input type="checkbox" id="cb5"><label for="cb5">Règlement de copropriété + état descriptif de division</label><span class="badge br">Obligatoire</span></div>
+  <div class="item"><input type="checkbox" id="cb6"><label for="cb6">3 derniers PV d'assemblée générale</label><span class="badge br">Obligatoire</span></div>
+  <div class="item"><input type="checkbox" id="cb7"><label for="cb7">Carnet d'entretien de l'immeuble</label><span class="badge br">Obligatoire</span></div>
+  <div class="item"><input type="checkbox" id="cb8"><label for="cb8">Fiche synthétique de copropriété</label><span class="badge br">Obligatoire</span></div>
+  <div class="item"><input type="checkbox" id="cb9"><label for="cb9">Montant des charges courantes (12 derniers mois)</label><span class="badge br">Obligatoire</span></div>
+  <div class="item"><input type="checkbox" id="cb10"><label for="cb10">Montant du fonds de travaux (art. 14-2 loi 65-557)</label><span class="badge br">Obligatoire</span></div>
+  <div class="item"><input type="checkbox" id="cb11"><label for="cb11">Travaux votés non encore réalisés</label><span class="badge br">Obligatoire</span></div>
+  <div class="item"><input type="checkbox" id="cb12"><label for="cb12">Procédures judiciaires en cours (syndicat)</label><span class="badge bo">Si applicable</span></div>
+  <div class="item"><input type="checkbox" id="cb13"><label for="cb13">Pré-état daté (fourni par le syndic)</label><span class="badge br">Obligatoire</span></div>
+</div>
+
+<div class="category"><div class="cat-header">Diagnostics techniques</div>
+  <div class="item"><input type="checkbox" id="cb14"><label for="cb14">DPE — Diagnostic de Performance Énergétique</label><span class="badge br">Obligatoire</span></div>
+  <div class="item"><input type="checkbox" id="cb15"><label for="cb15">Audit énergétique (DPE classe F ou G)</label><span class="badge bz">Si classe F/G</span></div>
+  <div class="item diag-amiante"><input type="checkbox" id="cb16"><label for="cb16">Amiante (immeuble avant juillet 1997)</label><span class="badge bz">Si avant 1997</span></div>
+  <div class="item diag-plomb"><input type="checkbox" id="cb17"><label for="cb17">Plomb — CREP (immeuble avant 1949)</label><span class="badge bz">Si avant 1949</span></div>
+  <div class="item"><input type="checkbox" id="cb18"><label for="cb18">Électricité (installation de plus de 15 ans)</label><span class="badge bz">Si +15 ans</span></div>
+  <div class="item"><input type="checkbox" id="cb19"><label for="cb19">Gaz (installation de plus de 15 ans)</label><span class="badge bz">Si +15 ans</span></div>
+  <div class="item"><input type="checkbox" id="cb20"><label for="cb20">ERP — État des Risques et Pollutions</label><span class="badge br">Obligatoire</span></div>
+  <div class="item"><input type="checkbox" id="cb21"><label for="cb21">Termites (Gironde — zone classée)</label><span class="badge bz">Zone Gironde</span></div>
+  <div class="item"><input type="checkbox" id="cb22"><label for="cb22">Bruit (zone de bruit aéroportuaire)</label><span class="badge bo">Si applicable</span></div>
+</div>
+
+<div class="category"><div class="cat-header">Documents fiscaux &amp; financiers</div>
+  <div class="item"><input type="checkbox" id="cb23"><label for="cb23">Avis de taxe foncière (2 dernières années)</label><span class="badge br">Obligatoire</span></div>
+  <div class="item"><input type="checkbox" id="cb24"><label for="cb24">Dernière quittance de charges de copropriété</label><span class="badge br">Obligatoire</span></div>
+  <div class="item"><input type="checkbox" id="cb25"><label for="cb25">Tableau d'amortissement du crédit en cours</label><span class="badge bo">Si applicable</span></div>
+</div>
+
+<div class="category"><div class="cat-header">Travaux réalisés &amp; plans</div>
+  <div class="item"><input type="checkbox" id="cb26"><label for="cb26">Plans de l'appartement</label><span class="badge bo">Recommandé</span></div>
+  <div class="item"><input type="checkbox" id="cb27"><label for="cb27">Factures travaux de rénovation (10 dernières années)</label><span class="badge bo">Recommandé</span></div>
+  <div class="item"><input type="checkbox" id="cb28"><label for="cb28">Garantie décennale des entreprises</label><span class="badge bo">Si travaux récents</span></div>
+  <div class="item"><input type="checkbox" id="cb29"><label for="cb29">Assurance dommages-ouvrage</label><span class="badge bo">Si applicable</span></div>
+  <div class="dd-item">
+    <div class="dd-trigger" onclick="togDD(this,&#39;sub-a-conf&#39;)">
+      <input type="checkbox" onclick="event.stopPropagation();togParent(this,&#39;sub-a-conf&#39;)">
+      <label onclick="event.stopPropagation();this.previousElementSibling.click()">Certificat(s) de conformité des équipements</label>
+      <span class="badge bo">Recommandé</span><span class="arr">▶</span>
+    </div>
+    <div class="sub-wrap" id="sub-a-conf">
+      <div class="sub-item"><input type="checkbox" id="scb101"><label for="scb101">Chaudière</label></div>
+      <div class="sub-item"><input type="checkbox" id="scb102"><label for="scb102">Cheminée / Poêle</label></div>
+      <div class="sub-item"><input type="checkbox" id="scb103"><label for="scb103">Climatisation</label></div>
+    </div>
+  </div>
+</div>
+
+<div class="actions">
+  <button class="btn-p" onclick="showMailPanel(&#39;appart&#39;)">📧 Préparer l'email</button>
+  <button class="btn-s" onclick="resetList(&#39;appart&#39;)">Réinitialiser</button>
+</div>
+</div>
+
+<!-- ==== MAISON ==== -->
+<div class="checklist-container" id="list-maison">
+<div class="progress-text" id="pt-maison">0 / 0 cochés</div>
+<div class="progress-bar"><div class="progress-fill" id="pf-maison" style="width:0%"></div></div>
+
+<div class="category"><div class="cat-header">Documents du propriétaire</div>
+  <div class="item"><input type="checkbox" id="cb30"><label for="cb30">Titre de propriété (acte notarié)</label><span class="badge br">Obligatoire</span></div>
+  <div class="item"><input type="checkbox" id="cb31"><label for="cb31">Justificatif d'identité (CNI ou passeport)</label><span class="badge br">Obligatoire</span></div>
+  <div class="item"><input type="checkbox" id="cb32"><label for="cb32">Acte de mariage / PACS / jugement de divorce</label><span class="badge bo">Si applicable</span></div>
+  <div class="item"><input type="checkbox" id="cb33"><label for="cb33">Livret de famille (si succession)</label><span class="badge bo">Si applicable</span></div>
+</div>
+
+<div class="category"><div class="cat-header">Documents administratifs &amp; urbanisme</div>
+  <div class="item"><input type="checkbox" id="cb34"><label for="cb34">Extrait de plan cadastral</label><span class="badge br">Obligatoire</span></div>
+  <div class="item"><input type="checkbox" id="cb35"><label for="cb35">Permis de construire (PC) + déclaration d'achèvement</label><span class="badge br">Obligatoire</span></div>
+  <div class="item"><input type="checkbox" id="cb36"><label for="cb36">Déclarations préalables de travaux (extensions, véranda…)</label><span class="badge bo">Si applicable</span></div>
+  <div class="item"><input type="checkbox" id="cb37"><label for="cb37">Certificat de conformité ou attestation de non-recours</label><span class="badge bo">Recommandé</span></div>
+  <div class="item"><input type="checkbox" id="cb38"><label for="cb38">PLU — règlement d'urbanisme communal</label><span class="badge bo">Recommandé</span></div>
+  <div class="item"><input type="checkbox" id="cb39"><label for="cb39">Servitudes (droit de passage, mitoyenneté…)</label><span class="badge bo">Si applicable</span></div>
+  <div class="loti-block">
+    <div class="loti-row">
+      <label>Lotissement :</label>
+      <select class="loti-sel" onchange="togLoti(&#39;maison&#39;,this.value)">
+        <option value="">— Sélectionner —</option>
+        <option value="actif">Actif</option>
+        <option value="inactif">Non actif</option>
+      </select>
+    </div>
+    <div class="loti-fields" id="lf-maison"></div>
+  </div>
+</div>
+
+<div class="category"><div class="cat-header">Diagnostics techniques</div>
+  <div class="item"><input type="checkbox" id="cb40"><label for="cb40">DPE — Diagnostic de Performance Énergétique</label><span class="badge br">Obligatoire</span></div>
+  <div class="item"><input type="checkbox" id="cb41"><label for="cb41">Audit énergétique (DPE classe F ou G)</label><span class="badge bz">Si classe F/G</span></div>
+  <div class="item diag-amiante"><input type="checkbox" id="cb42"><label for="cb42">Amiante (avant juillet 1997)</label><span class="badge bz">Si avant 1997</span></div>
+  <div class="item diag-plomb"><input type="checkbox" id="cb43"><label for="cb43">Plomb — CREP (avant 1949)</label><span class="badge bz">Si avant 1949</span></div>
+  <div class="item"><input type="checkbox" id="cb44"><label for="cb44">Électricité (installation de plus de 15 ans)</label><span class="badge bz">Si +15 ans</span></div>
+  <div class="item"><input type="checkbox" id="cb45"><label for="cb45">Gaz (installation de plus de 15 ans)</label><span class="badge bz">Si +15 ans</span></div>
+  <div class="item"><input type="checkbox" id="cb46"><label for="cb46">ERP — État des Risques et Pollutions</label><span class="badge br">Obligatoire</span></div>
+  <div class="item"><input type="checkbox" id="cb47"><label for="cb47">Termites (Gironde — zone classée)</label><span class="badge bz">Zone Gironde</span></div>
+  <div class="item"><input type="checkbox" id="cb48"><label for="cb48">Assainissement non collectif — contrôle SPANC</label><span class="badge bz">Si non collectif</span></div>
+  <div class="item"><input type="checkbox" id="cb49"><label for="cb49">Piscine — conformité sécurité</label><span class="badge bo">Si piscine</span></div>
+</div>
+
+<div class="category"><div class="cat-header">Documents fiscaux &amp; financiers</div>
+  <div class="item"><input type="checkbox" id="cb50"><label for="cb50">Avis de taxe foncière (2 dernières années)</label><span class="badge br">Obligatoire</span></div>
+  <div class="item"><input type="checkbox" id="cb51"><label for="cb51">Avis de taxe d'habitation (si non exonéré)</label><span class="badge bo">Si applicable</span></div>
+  <div class="item"><input type="checkbox" id="cb52"><label for="cb52">Tableau d'amortissement du crédit en cours</label><span class="badge bo">Si applicable</span></div>
+</div>
+
+<div class="category"><div class="cat-header">Travaux réalisés &amp; plans</div>
+  <div class="item"><input type="checkbox" id="cb53"><label for="cb53">Plans de la maison (architecte ou géomètre)</label><span class="badge bo">Recommandé</span></div>
+  <div class="item"><input type="checkbox" id="cb54"><label for="cb54">Factures travaux de rénovation (10 dernières années)</label><span class="badge bo">Recommandé</span></div>
+  <div class="item"><input type="checkbox" id="cb55"><label for="cb55">Garantie décennale des entreprises intervenantes</label><span class="badge bo">Si travaux récents</span></div>
+  <div class="item"><input type="checkbox" id="cb56"><label for="cb56">Assurance dommages-ouvrage</label><span class="badge bo">Si applicable</span></div>
+  <div class="dd-item">
+    <div class="dd-trigger" onclick="togDD(this,&#39;sub-m-conf&#39;)">
+      <input type="checkbox" onclick="event.stopPropagation();togParent(this,&#39;sub-m-conf&#39;)">
+      <label onclick="event.stopPropagation();this.previousElementSibling.click()">Certificat(s) de conformité des équipements</label>
+      <span class="badge bo">Recommandé</span><span class="arr">▶</span>
+    </div>
+    <div class="sub-wrap" id="sub-m-conf">
+      <div class="sub-item"><input type="checkbox" id="scb104"><label for="scb104">Chaudière</label></div>
+      <div class="sub-item"><input type="checkbox" id="scb105"><label for="scb105">Cheminée / Poêle</label></div>
+      <div class="sub-item"><input type="checkbox" id="scb106"><label for="scb106">Climatisation</label></div>
+    </div>
+  </div>
+</div>
+
+<div class="actions">
+  <button class="btn-p" onclick="showMailPanel(&#39;maison&#39;)">📧 Préparer l'email</button>
+  <button class="btn-s" onclick="resetList(&#39;maison&#39;)">Réinitialiser</button>
+</div>
+</div>
+
+<!-- ==== TERRAIN ==== -->
+<div class="checklist-container" id="list-terrain">
+<div class="progress-text" id="pt-terrain">0 / 0 cochés</div>
+<div class="progress-bar"><div class="progress-fill" id="pf-terrain" style="width:0%"></div></div>
+
+<div class="category"><div class="cat-header">Documents du propriétaire</div>
+  <div class="item"><input type="checkbox" id="cb57"><label for="cb57">Titre de propriété (acte notarié)</label><span class="badge br">Obligatoire</span></div>
+  <div class="item"><input type="checkbox" id="cb58"><label for="cb58">Justificatif d'identité</label><span class="badge br">Obligatoire</span></div>
+  <div class="item"><input type="checkbox" id="cb59"><label for="cb59">Acte de mariage / PACS (si bien commun)</label><span class="badge bo">Si applicable</span></div>
+</div>
+
+<div class="category"><div class="cat-header">Documents administratifs &amp; urbanisme</div>
+  <div class="item"><input type="checkbox" id="cb60"><label for="cb60">Extrait de plan cadastral</label><span class="badge br">Obligatoire</span></div>
+  <div class="item"><input type="checkbox" id="cb61"><label for="cb61">Certificat d'urbanisme opérationnel (CUb — art. L.410-1)</label><span class="badge br">Obligatoire</span></div>
+  <div class="item"><input type="checkbox" id="cb62"><label for="cb62">Plan de situation du terrain</label><span class="badge br">Obligatoire</span></div>
+  <div class="item"><input type="checkbox" id="cb63"><label for="cb63">Bornage géomètre-expert (procès-verbal)</label><span class="badge bo">Recommandé</span></div>
+  <div class="item"><input type="checkbox" id="cb64"><label for="cb64">PLU / zonage applicable</label><span class="badge br">Obligatoire</span></div>
+  <div class="item"><input type="checkbox" id="cb65"><label for="cb65">Servitudes (passage, vue, mitoyenneté…)</label><span class="badge bo">Si applicable</span></div>
+  <div class="item"><input type="checkbox" id="cb66"><label for="cb66">Droit de préemption urbain (renseignement mairie)</label><span class="badge bo">Recommandé</span></div>
+  <div class="loti-block">
+    <div class="loti-row">
+      <label>Lotissement :</label>
+      <select class="loti-sel" onchange="togLoti(&#39;terrain&#39;,this.value)">
+        <option value="">— Sélectionner —</option>
+        <option value="actif">Actif</option>
+        <option value="inactif">Non actif</option>
+      </select>
+    </div>
+    <div class="loti-fields" id="lf-terrain"></div>
+  </div>
+</div>
+
+<div class="category"><div class="cat-header">Diagnostics techniques</div>
+  <div class="item"><input type="checkbox" id="cb67"><label for="cb67">ERP — État des Risques et Pollutions</label><span class="badge br">Obligatoire</span></div>
+  <div class="item"><input type="checkbox" id="cb68"><label for="cb68">Étude de sol G1 (fortement recommandée)</label><span class="badge bo">Recommandé</span></div>
+  <div class="item"><input type="checkbox" id="cb69"><label for="cb69">Étude de sol G2 (si demandée par l'acquéreur)</label><span class="badge bo">Si demandée</span></div>
+  <div class="item"><input type="checkbox" id="cb70"><label for="cb70">Termites (Gironde — zone classée)</label><span class="badge bz">Zone Gironde</span></div>
+</div>
+
+<div class="category"><div class="cat-header">Viabilisation &amp; accès</div>
+  <div class="item"><input type="checkbox" id="cb71"><label for="cb71">Raccordement eau potable (attestation ou devis)</label><span class="badge bo">Si applicable</span></div>
+  <div class="item"><input type="checkbox" id="cb72"><label for="cb72">Raccordement électricité (ENEDIS)</label><span class="badge bo">Si applicable</span></div>
+  <div class="item"><input type="checkbox" id="cb73"><label for="cb73">Raccordement assainissement collectif (mairie)</label><span class="badge bo">Si applicable</span></div>
+  <div class="item"><input type="checkbox" id="cb74"><label for="cb74">Accès au terrain (voie privée ou publique)</label><span class="badge bo">Recommandé</span></div>
+</div>
+
+<div class="category"><div class="cat-header">Documents fiscaux</div>
+  <div class="item"><input type="checkbox" id="cb75"><label for="cb75">Avis de taxe foncière</label><span class="badge br">Obligatoire</span></div>
+</div>
+
+<div class="loti-block" style="display:none" id="loti-terrain-extra">
+  <div class="loti-row">
+    <label>Lotissement :</label>
+    <select class="loti-sel" onchange="togLoti(&#39;terrain2&#39;,this.value)">
+      <option value="">— Sélectionner —</option>
+      <option value="actif">Actif</option>
+      <option value="inactif">Non actif</option>
+    </select>
+  </div>
+  <div class="loti-fields" id="lf-terrain2"></div>
+</div>
+
+<div class="actions">
+  <button class="btn-p" onclick="showMailPanel(&#39;terrain&#39;)">📧 Préparer l'email</button>
+  <button class="btn-s" onclick="resetList(&#39;terrain&#39;)">Réinitialiser</button>
+</div>
+</div>
+</div>
+
+<!-- ======= FORMATION ======= -->
+<div id="section-formation" class="section">
+<div class="ftabs">
+  <button class="ftab active" onclick="showFTab(&#39;fiches&#39;,this)">Fiches</button>
+  <button class="ftab" onclick="showFTab(&#39;quiz&#39;,this)">Quiz</button>
+</div>
+
+<div id="f-fiches">
+<div class="modnav">
+  <button class="modbtn active" onclick="showMod(&#39;prospection&#39;,this)">Prospection</button>
+  <button class="modbtn" onclick="showMod(&#39;r1&#39;,this)">Rendez-vous R1</button>
+  <button class="modbtn" onclick="showMod(&#39;mandat&#39;,this)">Mandat confiance</button>
+  <button class="modbtn" onclick="showMod(&#39;acquereur&#39;,this)">Découverte acquéreur</button>
+  <button class="modbtn" onclick="showMod(&#39;r2&#39;,this)">R2 &amp; Close</button>
+  <button class="modbtn" onclick="showMod(&#39;bilan&#39;,this)">Bilan de promotion</button>
+</div>
+
+<div class="fiche active" id="mod-prospection">
+  <div class="fh"><div class="ft">La prospection</div><div class="fs">Passer d'une prospection de chasseur à une prospection de cultivateur</div></div>
+  <div class="cc"><h3>Philosophie</h3>
+    <div class="kp">Ne pas se poser de questions — aucune barrière. Tous les prospects ont des informations à transmettre.</div>
+    <div class="kp kps">CR² : être <strong>C</strong>onnu et <strong>R</strong>econnu / <strong>C</strong>onnu et <strong>R</strong>ecommandé</div>
+  </div>
+  <div class="cc"><h3>Les 10 techniques de prospection</h3>
+    <ol class="slist"><li>Phoning — nouveaux clients, suivi mailing</li><li>Boîtage — mailing de masse ou ciblé</li><li>Réseaux sociaux &amp; relationnels</li><li>Pige — appeler sur annonces PAP</li><li>Emailing — événements, vœux, anniversaires</li><li>100 premiers contacts — entourage, anciens clients</li><li>Porte à porte</li><li>SMS — base clients</li><li>Farming — événements locaux, crémaillères</li><li>Commerçants</li></ol>
+  </div>
+  <div class="cc"><h3>Comportement START</h3>
+    <div class="tags"><span class="tag tagh">S — Sourire</span><span class="tag tagh">T — Tenue soignée</span><span class="tag tagh">A — Attitude positive</span><span class="tag tagh">R — Regard non fuyant</span><span class="tag tagh">T — Ton engagé</span></div>
+    <div class="kp kpw" style="margin-top:10px">Les 8 premières secondes, les 8 premiers gestes, les 8 premiers mots sont décisifs.</div>
+  </div>
+  <div class="cc"><h3>Méthode AIDA</h3>
+    <ol class="slist"><li><strong>Attention</strong> — Se vendre soi et son agence, faire parler le prospect</li><li><strong>Intérêt</strong> — Utiliser l'argument qui intéresse vraiment le client</li><li><strong>Désir</strong> — Mettre le prospect en situation de désir anticipé</li><li><strong>Action</strong> — Faire entrer l'interlocuteur dans votre logique</li></ol>
+  </div>
+  <div class="cc"><h3>Enregistrement CenturyNet</h3>
+    <ol class="slist"><li>Sélectionner tous les prospects ayant reçu un mailing</li><li>Cliquer sur le bouton Pros+</li><li>Sélectionner l'action menée, le détail, et valider</li></ol>
+  </div>
+</div>
+
+<div class="fiche" id="mod-r1">
+  <div class="fh"><div class="ft">Rendez-vous d'estimation — R1</div><div class="fs">20% le conseiller / 80% le client</div></div>
+  <div class="cc"><h3>Préparation</h3>
+    <ul class="blist"><li>Appareil photo + mètre laser (vérifier piles et mémoire)</li><li>Guide R1 imprimé depuis CenturyNet (vérifier orthographe)</li><li>Cadastre avec plan de situation + infos parcelle</li><li>Fiches : découverte vendeurs, découverte du bien, prestations et matériaux</li><li>Googleliser le client + vérifier les voisins dans CenturyNet</li></ul>
+    <div class="kp kpw">« Être à l'heure c'est déjà être en retard »</div>
+  </div>
+  <div class="cc"><h3>Squelette : Passé → Présent → Futur</h3>
+    <div class="kp"><strong>Passé :</strong> Précédente acquisition, mandat utilisé, satisfaction, montant des travaux</div>
+    <div class="kp"><strong>Présent :</strong> Autres agences, décisionnaires, craintes, points forts/faibles, crédit restant, idée du prix</div>
+    <div class="kp"><strong>Futur :</strong> Plan si non-vente, coût de la non-vente, projet de déménagement</div>
+  </div>
+  <div class="cc"><h3>Comportement CARE</h3>
+    <div class="tags"><span class="tag">C — Curieux</span><span class="tag">A — Attentif</span><span class="tag">R — Rigoureux</span><span class="tag">E — À l'écoute</span></div>
+  </div>
+  <div class="cc"><h3>SONCAS</h3>
+    <div class="tags"><span class="tag tagh">S — Sécurité</span><span class="tag tagh">O — Orgueil</span><span class="tag tagh">N — Nouveauté</span><span class="tag tagh">C — Confort</span><span class="tag tagh">A — Argent</span><span class="tag tagh">S — Sympathie</span></div>
+    <div class="kp" style="margin-top:10px">Le R1 = prise de cartouches pour simplifier le close au R2.</div>
+  </div>
+  <div class="cc"><h3>L'ACM</h3>
+    <ol class="slist"><li>Point d'équipe chaque matin — 10 avis professionnels</li><li>Analyse concurrence (biens similaires, prix, délais)</li><li>ACM = photo du marché : ventes &lt;6 mois + en vente + invendus</li></ol>
+  </div>
+</div>
+
+<div class="fiche" id="mod-mandat">
+  <div class="fh"><div class="ft">Le mandat confiance</div><div class="fs">Une exclusivité d'interlocuteur, pas d'agence</div></div>
+  <div class="cc"><h3>Les 3 types de mandat</h3>
+    <div class="mg">
+      <div class="mc"><div class="mt">Mandat simple ③</div><ul class="blist"><li>Plusieurs agences</li><li>Peut vendre seul</li><li>Suivi limité</li></ul></div>
+      <div class="mc mcf"><div class="mt">Mandat confiance ⑤</div><ul class="blist"><li>Un seul interlocuteur</li><li>AMEPI + C21 + équipe</li><li>Clause 50/50</li><li>Garantie d'action</li></ul></div>
+      <div class="mc"><div class="mt">Mandat exclusif ④</div><ul class="blist"><li>Une seule agence</li><li>Ne peut vendre seul</li><li>Suivi renforcé</li></ul></div>
+    </div>
+  </div>
+  <div class="cc"><h3>Avantages clés</h3>
+    <ul class="blist"><li>Garantie d'action — 11 actions contractuelles ; manquement = le vendeur peut se délier</li><li>Clause 50/50 — vendeur trouve un acheteur seul → agence gère + reverse 50% commission</li><li>Accès à 122 agences AMEPI (CUB) — Laforêt, ERA, Guy Hoquet, Orpi, Square Habitat…</li><li>Pré-commercialisation privée avant mise sur le marché public</li><li>Suivi quotidien + espace mail dédié</li></ul>
+  </div>
+  <div class="cc"><h3>Argument central</h3>
+    <div class="qb">« Par un seul interlocuteur, vous avez accès à l'ensemble des acquéreurs sur votre secteur. »</div>
+  </div>
+</div>
+
+<div class="fiche" id="mod-acquereur">
+  <div class="fh"><div class="ft">Découverte acquéreur, visite &amp; offre</div><div class="fs">20 à 40 min — il n'y a pas de question interdite</div></div>
+  <div class="cc"><h3>Questions Passé / Présent</h3>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+      <div><div style="font-size:12px;font-weight:600;color:#888;margin-bottom:8px;text-transform:uppercase">Passé</div><ul class="blist"><li>Déjà acheté ? Par quel intermédiaire ?</li><li>Combien de biens visités ? Pourquoi pas encore ?</li></ul></div>
+      <div><div style="font-size:12px;font-weight:600;color:#888;margin-bottom:8px;text-transform:uppercase">Présent</div><ul class="blist"><li>Pourquoi déménager ? Ce qu'il veut retrouver ?</li><li>Financement : apport, crédit, vente en cours ?</li><li>Besoins : chambres, surface, neuf/ancien ?</li><li>Qui est décisionnaire ? Degré d'urgence ?</li></ul></div>
+    </div>
+  </div>
+  <div class="cc"><h3>Qualification A / B / C</h3>
+    <div class="aqg">
+      <div class="aqr aqa"><span class="al">A</span><span>Sérieux, motivé, désireux et capable d'acheter maintenant</span></div>
+      <div class="aqr aqb"><span class="al">B</span><span>Il manque un critère mineur pour acheter maintenant</span></div>
+      <div class="aqr aqc"><span class="al">C</span><span>Ne peut pas acheter de suite</span></div>
+    </div>
+  </div>
+  <div class="cc"><h3>Visite &amp; close</h3>
+    <ul class="blist"><li>RDV à l'agence — bon de visite + une seule voiture (retour agence forcé)</li><li>Parler peu en visite, mais la mener</li><li>Questions fin de visite : "Vous y voyez-vous ? Voyez-vous vos enfants grandir ici ?"</li><li>Balance points positifs/négatifs au retour agence</li><li>Montrer les diagnostics avant d'aller chercher l'offre</li></ul>
+    <div class="kp kpw">Plus l'acquéreur se positionne tôt, plus il faudra le conforter ensuite.</div>
+  </div>
+  <div class="cc"><h3>Process offre</h3>
+    <ol class="slist"><li>Débriefer avec quelqu'un non partie prenante</li><li>RDV vendeurs pour présenter et contre-signer l'offre</li><li>Établir un rétro-planning</li><li>Fixer la date de signature du compromis</li></ol>
+  </div>
+</div>
+
+<div class="fiche" id="mod-r2">
+  <div class="fh"><div class="ft">Le R2 et le close</div><div class="fs">« Vaut mieux closer trop tôt que trop tard »</div></div>
+  <div class="cc"><h3>Déroulement du R2</h3>
+    <ol class="slist"><li>Café/eau — briser la glace, prendre des nouvelles</li><li>Vérifier les changements depuis le R1</li><li>Valider fiche bien + fiche prestations</li><li>Présenter marché et chiffres C21 — impliquer le client</li><li>Tableau délais + financement</li><li>Présentation agence et réseau</li><li>Plan de com : moyens de promotion → prix → pré-close</li><li>Signature du mandat confiance</li></ol>
+  </div>
+  <div class="cc"><h3>Technique de l'entonnoir</h3>
+    <ol class="slist"><li><strong>Accepter</strong> — "Je comprends votre point de vue, c'est vrai…"</li><li><strong>Reformuler</strong> — "Si je comprends bien… c'est bien ça ?"</li><li><strong>Isoler</strong> — "Est-ce la seule chose qui vous gêne ?"</li><li><strong>Pré-closer</strong> — "Si je vous démontre que… vous signez aujourd'hui ?"</li><li><strong>Répondre</strong> — Utiliser les cartouches prises en R1</li><li><strong>Closer</strong> — "Allez, on y va !"</li></ol>
+    <div class="kp kpw">Plus tu closes tôt, plus il faut conforter !</div>
+  </div>
+  <div class="cc"><h3>Les 5 familles d'objections</h3>
+    <ul class="blist"><li><strong>Manque de confiance</strong> — Avis clients, résultats concrets</li><li><strong>Excuse</strong> — "Je dois en parler à…" → Est-ce important pour vous ?</li><li><strong>Comparaison</strong> — Qu'est-ce que vous voulez comparer ? 8 avis pro</li><li><strong>Coût des frais</strong> — Honoraires, diagnostics</li><li><strong>Argent</strong> — Coût de la non-vente, marché réel vs théorique</li></ul>
+  </div>
+  <div class="cc"><h3>Les 4 accords Toltèques</h3>
+    <ul class="blist"><li>Que votre parole soit impeccable</li><li>Quoi qu'il arrive, ne pas en faire une affaire personnelle</li><li>Ne pas faire de suppositions</li><li>Faire toujours de son mieux</li></ul>
+  </div>
+</div>
+
+<div class="fiche" id="mod-bilan">
+  <div class="fh"><div class="ft">Bilan de promotion</div><div class="fs">Un mandat non vendu = manque de communication OU prix inadapté</div></div>
+  <div class="cc"><h3>Préparation</h3>
+    <ul class="blist"><li>Imprimer le bilan de promotion</li><li>Sortir les chiffres des différents sites</li><li>Ancienne ACM + nouvelle ACM actualisée</li><li>Fiche technique + estimation initiale</li></ul>
+  </div>
+  <div class="cc"><h3>Déroulement</h3>
+    <ol class="slist"><li>Café, briser la glace</li><li>Poser le cadre</li><li>Rappeler le projet — 3 choix : rester, louer, vendre</li><li>Prendre le ressenti sur la commercialisation</li><li>Définir le prix plancher</li><li>Conclure : promotion OU prix</li></ol>
+  </div>
+  <div class="cc"><h3>Points clés</h3>
+    <div class="kp kpw">Ne pas attendre pour conseiller une baisse si peu de visites — les concurrents en profiteront.</div>
+    <div class="kp">Fixer les dates de bilan dès la prise de mandat — c'est contractuel.</div>
+    <div class="kp kps">Les bilans permettent de garder la confiance et d'être soudés dans la même aventure.</div>
+  </div>
+</div>
+</div>
+
+<!-- ==== QUIZ ==== -->
+<div id="f-quiz" style="display:none">
+  <div id="qsetup">
+    <p style="font-size:14px;color:#555;margin-bottom:1.25rem">Choisissez un niveau et un thème, puis lancez le quiz.</p>
+    <div style="margin-bottom:1rem">
+      <div style="font-size:12px;font-weight:600;color:#888;text-transform:uppercase;margin-bottom:8px">Niveau de difficulté</div>
+      <div class="qlev">
+        <button class="lvbtn" onclick="setLvl(&#39;d&#39;,this)">🟢 Débutant</button>
+        <button class="lvbtn" onclick="setLvl(&#39;i&#39;,this)">🔵 Intermédiaire</button>
+        <button class="lvbtn" onclick="setLvl(&#39;a&#39;,this)">🔴 Avancé</button>
+      </div>
+    </div>
+    <div style="margin-bottom:1.25rem">
+      <div style="font-size:12px;font-weight:600;color:#888;text-transform:uppercase;margin-bottom:8px">Thème</div>
+      <div class="qthm">
+        <button class="thbtn active" onclick="setThm(&#39;all&#39;,this)">Tous les thèmes</button>
+        <button class="thbtn" onclick="setThm(&#39;prospection&#39;,this)">Prospection</button>
+        <button class="thbtn" onclick="setThm(&#39;r1&#39;,this)">R1</button>
+        <button class="thbtn" onclick="setThm(&#39;mandat&#39;,this)">Mandat</button>
+        <button class="thbtn" onclick="setThm(&#39;acquereur&#39;,this)">Acquéreur</button>
+        <button class="thbtn" onclick="setThm(&#39;r2&#39;,this)">R2 &amp; Close</button>
+        <button class="thbtn" onclick="setThm(&#39;bilan&#39;,this)">Bilan</button>
+      </div>
+    </div>
+    <button class="btn-p" onclick="startQ()">Démarrer le quiz</button>
+  </div>
+  <div id="qplay" style="display:none">
+    <div id="qbadge"></div>
+    <div id="qquestions"></div>
+    <button class="btn-p" onclick="submitQ()" id="qsubmit" style="margin-top:1rem">Valider mes réponses</button>
+  </div>
+</div>
+</div>
+
+<script>
+var curType=null,qLvl=null,qThm='all',qAns={},qActive=[];
+
+function initCheckboxes(){
+  document.querySelectorAll('.item input[type=checkbox]').forEach(function(cb){
+    cb.addEventListener('change',function(){
+      var item=cb.closest('.item');
+      item.classList.toggle('checked',cb.checked);
+      if(curType) updProg(curType);
+    });
+  });
+  // sub-items (conformit\u00E9)
+  document.querySelectorAll('.sub-item input[type=checkbox]').forEach(function(cb){
+    cb.addEventListener('change',function(){
+      cb.closest('.sub-item').classList.toggle('checked',cb.checked);
+      if(curType) updProg(curType);
+    });
+  });
+}
+document.addEventListener('DOMContentLoaded', initCheckboxes);
+
+function showSec(id,btn){
+  document.querySelectorAll('.section').forEach(function(s){s.classList.remove('active')});
+  document.querySelectorAll('.nav-btn').forEach(function(b){b.classList.remove('active')});
+  document.getElementById('section-'+id).classList.add('active');btn.classList.add('active');
+}
+function applyYear(){
+  var y=parseInt(document.getElementById('yr').value);
+  var note='';
+  if(!y||y<1800||y>2025){note='Renseignez une ann\u00E9e valide pour filtrer les diagnostics.';}
+  else{var m=[];if(y>=1997)m.push('Amiante retir\u00E9 (apr\u00E8s juillet 1997)');if(y>=1949)m.push('Plomb retir\u00E9 (apr\u00E8s 1949)');note=m.length?m.join(' \u2014 '):'Amiante et plomb applicables selon la date.';}
+  document.getElementById('yrnote').textContent=note;
+  document.querySelectorAll('.diag-amiante').forEach(function(el){el.classList.toggle('hidden',y>=1997);if(y>=1997){var cb=el.querySelector('input');cb.checked=false;el.classList.remove('checked');}});
+  document.querySelectorAll('.diag-plomb').forEach(function(el){el.classList.toggle('hidden',y>=1949);if(y>=1949){var cb=el.querySelector('input');cb.checked=false;el.classList.remove('checked');}});
+  if(curType)updProg(curType);
+}
+function selType(t){
+  document.querySelectorAll('.type-card').forEach(function(c){c.classList.remove('active')});
+  document.getElementById('card-'+t).classList.add('active');
+  document.querySelectorAll('.checklist-container').forEach(function(c){c.classList.remove('active')});
+  document.getElementById('list-'+t).classList.add('active');
+  curType=t;updProg(t);
+}
+function updProg(t){
+  var c=document.getElementById('list-'+t);
+  var vis=Array.from(c.querySelectorAll('.item:not(.hidden) input[type=checkbox]'));
+  var subs=Array.from(c.querySelectorAll('.sub-item input[type=checkbox],.loti-item input[type=checkbox]'));
+  var all=vis.concat(subs);
+  var chk=all.filter(function(cb){return cb.checked});
+  var pct=all.length?Math.round(chk.length/all.length*100):0;
+  document.getElementById('pf-'+t).style.width=pct+'%';
+  document.getElementById('pt-'+t).textContent=chk.length+' / '+all.length+' coch\u00E9s';
+}
+function resetList(t){
+  var c=document.getElementById('list-'+t);
+  c.querySelectorAll('input[type=checkbox]').forEach(function(cb){cb.checked=false});
+  c.querySelectorAll('.item,.sub-item,.loti-item').forEach(function(i){i.classList.remove('checked')});
+  c.querySelectorAll('.dd-trigger').forEach(function(d){d.classList.remove('open','checked')});
+  c.querySelectorAll('.sub-wrap').forEach(function(s){s.classList.remove('open')});
+  c.querySelectorAll('.loti-sel').forEach(function(s){s.value=''});
+  c.querySelectorAll('.loti-fields').forEach(function(f){f.classList.remove('open');f.innerHTML='';});
+  updProg(t);
+}
+function togDD(trigger,subId){var sub=document.getElementById(subId);trigger.classList.toggle('open');sub.classList.toggle('open');}
+function togParent(cb,subId){
+  var sub=document.getElementById(subId);var trigger=cb.parentElement;
+  trigger.classList.toggle('checked',cb.checked);
+  if(!cb.checked){sub.querySelectorAll('input[type=checkbox]').forEach(function(c){c.checked=false});sub.querySelectorAll('.sub-item').forEach(function(i){i.classList.remove('checked')});}
+  if(curType)updProg(curType);
+}
+function togLoti(zone,val){
+  var fId='lf-'+zone;var fEl=document.getElementById(fId);
+  fEl.innerHTML='';
+  if(!val){fEl.classList.remove('open');if(curType)updProg(curType);return;}
+  fEl.classList.add('open');
+  var items=['Cahier des charges du lotissement',"Statuts de l'association syndicale",'R\u00E8glement du lotissement'];
+  var extra=val==='actif'?['Montant de la cotisation annuelle']:[];
+  var html='';
+  var idBase='loti_'+zone+'_'+Date.now();
+  items.concat(extra).forEach(function(lbl,i){
+    var cid=idBase+'_'+i;
+    html+='<div class="loti-item"><input type="checkbox" id="'+cid+'"><label for="'+cid+'">'+lbl+'</label></div>';
+  });
+  if(val==='actif'){html+='<div class="loti-txt-row"><label>Nom du president de association :</label><input type="text" placeholder="\u00C0 renseigner"></div>';}
+  fEl.innerHTML=html;
+  fEl.querySelectorAll('.loti-item input[type=checkbox]').forEach(function(cb){
+    cb.addEventListener('change',function(){
+      cb.closest('.loti-item').classList.toggle('checked',cb.checked);
+      if(curType) updProg(curType);
+    });
+  });
+  if(curType)updProg(curType);
+}
+
+function togLotiItem(item){var cb=item.querySelector('input[type=checkbox]');item.classList.toggle('checked',cb.checked);if(curType)updProg(curType);}
+function buildCheckedLines(t){
+  var lbl={appart:'Appartement',maison:'Maison',terrain:'Terrain'};
+  var yr=document.getElementById('yr').value;
+  var c=document.getElementById('list-'+t);
+  var lines=['CHECKLIST DOCUMENTS \u2013 '+lbl[t].toUpperCase()];
+  if(yr) lines.push('Ann\u00E9e de construction : '+yr);
+  lines.push('');
+  c.querySelectorAll('.item:not(.hidden)').forEach(function(item){
+    var cb=item.querySelector('input[type=checkbox]');
+    if(!cb||!cb.checked) return;
+    var l=item.querySelector('label').textContent;
+    var b=item.querySelector('.badge');
+    lines.push("OK: "+l+(b?' ['+b.textContent+']':''));
+  });
+  c.querySelectorAll('.sub-item').forEach(function(item){
+    var cb=item.querySelector('input[type=checkbox]');
+    if(!cb||!cb.checked) return;
+    lines.push("  - Conformite: "+item.querySelector('label').textContent);
+  });
+  c.querySelectorAll('.loti-item').forEach(function(item){
+    var cb=item.querySelector('input[type=checkbox]');
+    if(!cb||!cb.checked) return;
+    lines.push("  - Lotissement: "+item.querySelector('label').textContent);
+  });
+  c.querySelectorAll('.loti-txt-row').forEach(function(item){
+    var v=item.querySelector('input[type=text]').value;
+    if(!v) return;
+    lines.push("  Info: "+item.querySelector('label').textContent+' '+v);
+  });
+  return lines;
+}
+function buildCheckedText(t){
+  var lbl={appart:'Appartement',maison:'Maison',terrain:'Terrain'};
+  var yr=document.getElementById('yr').value;
+  var c=document.getElementById('list-'+t);
+  var civility=document.getElementById('mail-civility').value||'Madame, Monsieur,';
+  var agentName=document.getElementById('mail-agent').value||'Votre conseiller Century 21';
+  var agentPhone=document.getElementById('mail-phone').value||'';
+  var agentEmail=document.getElementById('mail-email').value||'';
+
+  var docs=[];
+  c.querySelectorAll('.item:not(.hidden)').forEach(function(item){
+    var cb=item.querySelector('input[type=checkbox]');
+    if(!cb||!cb.checked) return;
+    var l=item.querySelector('label').textContent.trim();
+    docs.push(l);
+  });
+  c.querySelectorAll('.sub-item').forEach(function(item){
+    var cb=item.querySelector('input[type=checkbox]');
+    if(!cb||!cb.checked) return;
+    docs.push('Certificat de conformite - '+item.querySelector('label').textContent.trim());
+  });
+  c.querySelectorAll('.loti-item').forEach(function(item){
+    var cb=item.querySelector('input[type=checkbox]');
+    if(!cb||!cb.checked) return;
+    docs.push('Lotissement - '+item.querySelector('label').textContent.trim());
+  });
+
+  var intro='Madame, Monsieur,\n\n'
+    +'Suite a notre rencontre, je me permets de vous faire parvenir la liste des documents'
+    +' necessaires pour la mise en vente de votre bien'
+    +(yr?' (construction '+yr+')':'')
+    +'.\n\n'
+    +'Afin de constituer votre dossier dans les meilleurs delais, je vous remercie de bien'
+    +' vouloir reunir les documents suivants :\n\n';
+
+  if(civility && civility !== 'Madame, Monsieur,'){
+    intro = intro.replace('Madame, Monsieur,', civility);
+  }
+
+  var docLines=docs.map(function(d,i){return '  '+(i+1)+'. '+d;}).join('\n');
+
+  var outro='\n\nCes documents permettront de constituer le dossier de vente complet'
+    +' et de vous offrir les meilleures conditions pour la commercialisation de votre bien.\n\n'
+    +'Je reste bien entendu a votre disposition pour tout renseignement complementaire'
+    +' ou pour vous accompagner dans la collecte de ces documents.\n\n'
+    +'Dans l\'attente de vous lire, je vous adresse, Madame, Monsieur,'
+    +' mes sinceres salutations.\n\n'
+    +'---\n'
+    +agentName+'\n'
+    +'Century 21\n';
+
+  if(agentPhone) outro += 'Tel : '+agentPhone+'\n';
+  if(agentEmail) outro += agentEmail+'\n';
+
+  return intro+docLines+outro;
+}
+function showMailPanel(t){
+  var c=document.getElementById('list-'+t);
+  var hasItems=false;
+  c.querySelectorAll('.item:not(.hidden) input[type=checkbox]:checked, .sub-item input[type=checkbox]:checked, .loti-item input[type=checkbox]:checked').forEach(function(){hasItems=true;});
+  if(!hasItems){alert('Cochez au moins un document avant de preparer l\'email.');return;}
+  document.getElementById('mail-overlay').style.display='flex';
+  document.getElementById('copy-ok').style.display='none';
+  document.getElementById('copy-mail-btn').textContent='Copier le texte';
+  refreshMailPreview(t);
+  document.getElementById('mail-overlay').setAttribute('data-type',t);
+}
+function refreshMailPreview(t){
+  t=t||document.getElementById('mail-overlay').getAttribute('data-type');
+  if(!t) return;
+  document.getElementById('mail-text').value=buildCheckedText(t);
+}
+function closeMailPanel(){
+  document.getElementById('mail-overlay').style.display='none';
+}
+function copyMailText(){
+  var ta=document.getElementById('mail-text');
+  ta.select();
+  ta.setSelectionRange(0,99999);
+  var ok=false;
+  try{ok=document.execCommand('copy');}catch(e){}
+  if(!ok && navigator.clipboard){
+    navigator.clipboard.writeText(ta.value).catch(function(){});
+    ok=true;
+  }
+  if(ok){
+    document.getElementById('copy-ok').style.display='block';
+    document.getElementById('copy-mail-btn').textContent='Copie OK !';
+  }
+}
+
+function showFTab(tab,btn){
+  document.querySelectorAll('.ftab').forEach(function(b){b.classList.remove('active')});btn.classList.add('active');
+  document.getElementById('f-fiches').style.display=tab==='fiches'?'block':'none';
+  document.getElementById('f-quiz').style.display=tab==='quiz'?'block':'none';
+}
+function showMod(id,btn){
+  document.querySelectorAll('.fiche').forEach(function(f){f.classList.remove('active')});
+  document.querySelectorAll('.modbtn').forEach(function(b){b.classList.remove('active')});
+  document.getElementById('mod-'+id).classList.add('active');btn.classList.add('active');
+}
+function setLvl(l,btn){qLvl=l;document.querySelectorAll('.lvbtn').forEach(function(b){b.className='lvbtn'});btn.className='lvbtn l'+l;}
+function setThm(t,btn){qThm=t;document.querySelectorAll('.thbtn').forEach(function(b){b.classList.remove('active')});btn.classList.add('active');}
+
+var allQ=[
+  {q:"Que signifie CR\u00B2 ?",o:["Compte Rendu R\u00E9gulier","Connu et Reconnu / Connu et Recommand\u00E9","Chiffre de R\u00E9ussite au Carr\u00E9","Calendrier de Relance R\u00E9gulier"],a:1,e:"CR\u00B2 = Connu et Reconnu / Connu et Recommand\u00E9 sur son secteur.",l:'d',t:'prospection'},
+  {q:"Combien de techniques de prospection sont list\u00E9es ?",o:["7","8","10","12"],a:2,e:"10 techniques : phoning, bo\u00EEtage, r\u00E9seaux, pige, emailing, 100 premiers, porte \u00E0 porte, SMS, farming, commer\u00E7ants.",l:'d',t:'prospection'},
+  {q:"Que signifie START ?",o:["Sourire, Tenue, Attitude, Regard, Ton","Service, Travail, Argumentation, R\u00E9sultat, Temps","Strat\u00E9gie, Talent, Action, R\u00E9ussite, Terrain","Suivi, Terrain, Analyse, Relance, T\u00E9l\u00E9phone"],a:0,e:"START = Sourire, Tenue soign\u00E9e, Attitude positive, Regard non fuyant, Ton engag\u00E9.",l:'d',t:'prospection'},
+  {q:"Que signifie ACM ?",o:["Accord Commercial Multipartite","Analyse Comparative de March\u00E9","Agent Commercial Mandat\u00E9","Acte de Commercialisation du Mandat"],a:1,e:"ACM = Analyse Comparative de March\u00E9 \u2014 la photo du march\u00E9 actuel.",l:'d',t:'r1'},
+  {q:"Lors du R1, quelle est la r\u00E8gle de prise de parole ?",o:["50/50","70% conseiller / 30% client","20% conseiller / 80% client","100% conseiller"],a:2,e:"R1 = 20% le conseiller / 80% le client. Phase d'\u00E9coute avant tout.",l:'d',t:'r1'},
+  {q:"Que signifie SONCAS ?",o:["S\u00E9rieux, Objectif, N\u00E9gociation, Compromis, Accord, Signature","S\u00E9curit\u00E9, Orgueil, Nouveaut\u00E9, Confort, Argent, Sympathie","Service, Offre, N\u00E9gociation, Contrat, Accord, Suivi","Strat\u00E9gie, Organisation, N\u00E9cessit\u00E9, Co\u00FBt, Avantage, Solution"],a:1,e:"SONCAS = S\u00E9curit\u00E9, Orgueil, Nouveaut\u00E9, Confort, Argent, Sympathie.",l:'d',t:'r1'},
+  {q:"La particularit\u00E9 principale du Mandat Confiance ?",o:["Toujours moins cher","Exclusivit\u00E9 d'interlocuteur, pas d'agence","Interdit au vendeur de trouver un acheteur seul","Valable 6 mois minimum"],a:1,e:"Le Mandat Confiance est une exclusivit\u00E9 d'interlocuteur et non d'agence.",l:'d',t:'mandat'},
+  {q:"Combien d'actions comprend la garantie d'action ?",o:["5","8","11","15"],a:2,e:"11 actions contractuelles. Si l'une manque, le vendeur peut se d\u00E9lier.",l:'d',t:'mandat'},
+  {q:"Que pr\u00E9voit la clause 50/50 ?",o:["Partage des frais de notaire","Si le vendeur trouve un acheteur seul, l'agence g\u00E8re et reverse 50% de sa commission","Partage du prix de vente","Commission divis\u00E9e entre deux agences"],a:1,e:"Clause 50/50 : si le vendeur trouve seul un acheteur, l'agence g\u00E8re et reverse la moiti\u00E9 de sa commission.",l:'d',t:'mandat'},
+  {q:"Un acqu\u00E9reur de type B, c'est :",o:["Pr\u00EAt \u00E0 acheter imm\u00E9diatement","Il manque un crit\u00E8re mineur pour acheter maintenant","Ne peut pas acheter de suite","Un investisseur"],a:1,e:"A = peut acheter maintenant / B = crit\u00E8re mineur manquant / C = ne peut pas acheter de suite.",l:'d',t:'acquereur'},
+  {q:"La r\u00E8gle d'or du close ?",o:["Attendre que le client aborde le sujet","Toujours attendre le R3","Vaut mieux closer trop t\u00F4t que trop tard","Closer uniquement si tous les d\u00E9cisionnaires sont l\u00E0"],a:2,e:"Vaut mieux closer trop t\u00F4t que trop tard. Plus t\u00F4t = plus de confortage.",l:'d',t:'r2'},
+  {q:"Lors du bilan de promotion, les 2 axes de conclusion sont :",o:["Relance ou bo\u00EEtage","Modifier les moyens de promotion ou modifier le prix","Baisser le prix ou r\u00E9silier le mandat","Changer les photos ou l'annonce"],a:1,e:"Bilan de promotion : modifier les moyens de promotion OU modifier le prix.",l:'d',t:'bilan'},
+  {q:"Que faire si vous n'avez pas de r\u00E9ponse lors d'un porte \u00E0 porte ?",o:["Passer directement \u00E0 la suivante","Laisser un 'juste un mot' dans la bo\u00EEte aux lettres","Revenir 3 fois avant de passer","Appeler le propri\u00E9taire"],a:1,e:"Pr\u00E9parer des 'justes un mot' pour les maisons vides : je suis en recherche active dans le quartier, contactez-moi.",l:'i',t:'prospection'},
+  {q:"Que signifie QIPM ?",o:["Qualifier, Informer, Prospecter, Mesurer","Quels Int\u00E9r\u00EAts Pour Moi","Questions, Informations, Prospects, M\u00E9thode","Qualifier, Identifier, Planifier, Mesurer"],a:1,e:"QIPM = Quels Int\u00E9r\u00EAts Pour Moi. Se poser cette question avant chaque action.",l:'i',t:'prospection'},
+  {q:"Dans AIDA, le 'D' repr\u00E9sente :",o:["D\u00E9cision","Dur\u00E9e","D\u00E9sir","D\u00E9monstration"],a:2,e:"AIDA : Attention, Int\u00E9r\u00EAt, D\u00E9sir, Action. D = D\u00E9sir, mettre le prospect en situation de d\u00E9sir anticip\u00E9.",l:'i',t:'prospection'},
+  {q:"Quelle est la structure temporelle du R1 ?",o:["Pr\u00E9sent \u2192 Futur \u2192 Pass\u00E9","Pass\u00E9 \u2192 Pr\u00E9sent \u2192 Futur","Futur \u2192 Pr\u00E9sent \u2192 Pass\u00E9","Pr\u00E9sent \u2192 Pass\u00E9 \u2192 Futur"],a:1,e:"Le squelette du R1 suit toujours : Pass\u00E9 \u2192 Pr\u00E9sent \u2192 Futur.",l:'i',t:'r1'},
+  {q:"Que signifie CARE ?",o:["Comp\u00E9tent, Amical, R\u00E9actif, Efficace","Curieux, Attentif, Rigoureux, \u00C0 l'\u00E9coute","Confiant, Assertif, Rigoureux, Engag\u00E9","Commercial, Actif, R\u00E9fl\u00E9chi, Enthousiaste"],a:1,e:"CARE = Curieux, Attentif, Rigoureux, \u00C0 l'\u00E9coute.",l:'i',t:'r1'},
+  {q:"Combien d'agences font partie du fichier AMEPI sur la CUB ?",o:["Environ 50","Environ 80","Environ 122","Environ 200"],a:2,e:"Environ 122 agences sur la CUB : Lafor\u00EAt, ERA, Guy Hoquet, Orpi, Square Habitat\u2026",l:'i',t:'mandat'},
+  {q:"O\u00F9 doit imp\u00E9rativement d\u00E9buter le RDV de visite ?",o:["Devant le bien","\u00C0 l'agence, pour signer les bons de visite","Au domicile de l'acqu\u00E9reur","En visioconf\u00E9rence"],a:1,e:"\u00C0 l'agence : bons de visite + une seule voiture \u2192 retour agence forc\u00E9.",l:'i',t:'acquereur'},
+  {q:"Un acqu\u00E9reur de type A r\u00E9unit combien de crit\u00E8res ?",o:["1 crit\u00E8re : la motivation","2 crit\u00E8res : motivation + financement","3 crit\u00E8res : s\u00E9rieux, motiv\u00E9, financ\u00E9","4 crit\u00E8res : s\u00E9rieux, motiv\u00E9, d\u00E9sireux ET capable d'acheter maintenant"],a:3,e:"A = s\u00E9rieux, motiv\u00E9, d\u00E9sireux ET capable d'acheter maintenant. Les 4 crit\u00E8res doivent \u00EAtre r\u00E9unis.",l:'i',t:'acquereur'},
+  {q:"Dans la technique de l'entonnoir, apr\u00E8s avoir isol\u00E9 l'objection :",o:["Closer directement","Reformuler","Pr\u00E9-closer","Accepter"],a:2,e:"Entonnoir : Accepter \u2192 Reformuler \u2192 Isoler \u2192 Pr\u00E9-closer \u2192 R\u00E9pondre \u2192 Closer.",l:'i',t:'r2'},
+  {q:"Pourquoi fixer les dates de bilan d\u00E8s la prise de mandat ?",o:["Pour respecter la loi Hoguet","Car c'est contractuel et cela maintient la confiance","Pour justifier les honoraires","Pour montrer son organisation"],a:1,e:"Les bilans sont contractuels. Planifier d\u00E8s la signature = garder la confiance et la r\u00E9activit\u00E9.",l:'i',t:'bilan'},
+  {q:"Quel outil permet de relancer les agences de mobilit\u00E9 (Dassault, Airbus\u2026) ?",o:["L'ACM","La plaquette de pr\u00E9sentation en pr\u00E9-commercialisation","Le guide R1","La fiche SONCAS"],a:1,e:"En pr\u00E9-commercialisation, on relance les agences de mobilit\u00E9 avec une plaquette avant la mise sur le march\u00E9.",l:'i',t:'mandat'},
+  {q:"Que pr\u00E9parer pour un bilan de promotion ?",o:["Uniquement l'ACM actualis\u00E9e","Bilan + chiffres sites + ancienne ACM + nouvelle ACM + fiche technique + estimation initiale","Uniquement les stats de clics","Le guide de commercialisation uniquement"],a:1,e:"Pr\u00E9parer : bilan, chiffres sites, ancienne + nouvelle ACM, fiche technique, estimation initiale.",l:'i',t:'bilan'},
+  {q:"Un vendeur dit 'J'ai besoin de r\u00E9fl\u00E9chir'. Premi\u00E8re \u00E9tape de l'entonnoir ?",o:["Pr\u00E9-closer imm\u00E9diatement","Accepter : 'Je comprends votre point de vue'","Isoler : 'Est-ce la seule chose qui vous g\u00EAne ?'","R\u00E9pondre avec vos arguments"],a:1,e:"On commence toujours par Accepter pour d\u00E9samorcer la tension, avant de Reformuler, Isoler, Pr\u00E9-closer, R\u00E9pondre, Closer.",l:'a',t:'r2'},
+  {q:"'Une autre agence m'a propos\u00E9 les m\u00EAmes services moins cher' \u2014 quelle famille d'objection ?",o:["Manque de confiance","Excuse","Comparaison avec","Co\u00FBt des frais"],a:2,e:"Objection de type 'comparaison avec'. R\u00E9ponse : qu'est-ce que vous voulez comparer exactement ?",l:'a',t:'r2'},
+  {q:"Au R1, pourquoi demander le montant du cr\u00E9dit restant du vendeur ?",o:["Pour \u00E9valuer sa solvabilit\u00E9","Pour estimer le prix plancher r\u00E9el et anticiper les marges de n\u00E9gociation","C'est une obligation l\u00E9gale","Pour pr\u00E9parer le dossier notaire"],a:1,e:"Le cr\u00E9dit restant permet d'estimer le prix plancher r\u00E9el \u2014 cartouche pr\u00E9cieuse pour le R2.",l:'a',t:'r1'},
+  {q:"Pourquoi ne pas attendre pour conseiller une baisse de prix au bilan ?",o:["C'est contre la loi","Les agences concurrentes en profiteront si on tarde","Le march\u00E9 peut se retourner","Le vendeur refusera syst\u00E9matiquement"],a:1,e:"Plus on tarde, plus les concurrents profitent du d\u00E9lai. Agir t\u00F4t = avantage concurrentiel.",l:'a',t:'bilan'},
+  {q:"Apr\u00E8s visite, l'acqu\u00E9reur dit 'Je vais r\u00E9fl\u00E9chir'. Quelle question en priorit\u00E9 ?",o:["Quand me rappellerez-vous ?","Vous y voyez-vous ? Qu'est-ce qui vous emp\u00EAcherait de vous positionner ?","Avez-vous d'autres visites pr\u00E9vues ?","Quel est votre budget maximum ?"],a:1,e:"La balance post-visite : 'Vous y voyez-vous ? Qu'est-ce qui vous emp\u00EAcherait ?' puis close avec urgence.",l:'a',t:'acquereur'},
+  {q:"Au R2, dans quel ordre pr\u00E9sente-t-on le plan de commercialisation ?",o:["Prix \u2192 promotion \u2192 mandat","Mandat \u2192 prix \u2192 promotion","Promotion \u2192 prix \u2192 pr\u00E9-close","Prix \u2192 mandat \u2192 promotion"],a:2,e:"On pr\u00E9sente d'abord les moyens de promotion, puis le prix, avant d'aller vers la pr\u00E9-close et le mandat.",l:'a',t:'r2'},
+  {q:"Quelle est la diff\u00E9rence op\u00E9rationnelle Mandat Simple vs Mandat Confiance pour l'acheteur AMEPI ?",o:["Aucune diff\u00E9rence","Avec le MC, l'acheteur visite TOUJOURS avec le conseiller mandataire, m\u00EAme s'il vient d'une agence AMEPI","Avec le simple, l'acheteur a acc\u00E8s \u00E0 plus de biens","Avec le MC, l'acheteur paie moins"],a:1,e:"Avec le MC + AMEPI, les acqu\u00E9reurs des agences partenaires visitent TOUJOURS avec le conseiller mandataire.",l:'a',t:'mandat'},
+  {q:"La d\u00E9couverte acqu\u00E9reur dure 20-40 min pour :",o:["Respecter un d\u00E9lai l\u00E9gal","Qualifier finement le projet, la motivation et le financement avant toute visite","Respecter le planning de l'agence","Faire signer le bon de visite"],a:1,e:"Une bonne d\u00E9couverte permet de qualifier A/B/C, identifier le SONCAS, valider le financement, envoyer des fiches pertinentes.",l:'a',t:'acquereur'},
+  {q:"La logique de la pr\u00E9-commercialisation avant mise sur le march\u00E9 ?",o:["R\u00E9duire les frais de pub","Cr\u00E9er de la raret\u00E9 et favoriser une vente rapide au meilleur prix","Tester le prix sans engagement","Respecter un d\u00E9lai l\u00E9gal de 30 jours"],a:1,e:"La pr\u00E9-commercialisation cr\u00E9e de la raret\u00E9 et de l'urgence \u2014 les acqu\u00E9reurs sont en concurrence avant la mise publique.",l:'a',t:'mandat'},
+  {q:"Un vendeur a eu un mauvais v\u00E9cu avec un mandat simple. Quelle cartouche cela donne-t-il au R2 ?",o:["Aucune, c'est neutre","Souligner les limites du simple v\u00E9cu et valoriser l'exclusivit\u00E9 d'interlocuteur du Mandat Confiance","\u00C9viter le sujet","Proposer imm\u00E9diatement de signer"],a:1,e:"L'exp\u00E9rience pass\u00E9e avec un mandat simple est une cartouche majeure pour valoriser le Mandat Confiance au R2.",l:'a',t:'r1'},
+  {q:"Quel accord Tolt\u00E8que s'applique quand un vendeur devient agressif au bilan ?",o:["Que votre parole soit impeccable","Ne pas en faire une affaire personnelle","Ne pas faire de suppositions","Faire toujours de son mieux"],a:1,e:"'Ne pas en faire une affaire personnelle' \u2014 les r\u00E9actions du vendeur viennent de sa situation, pas d'un jugement sur vous.",l:'a',t:'r2'}
+];
+
+function startQ(){
+  if(!qLvl){alert('Veuillez choisir un niveau.');return;}
+  qAns={};
+  qActive=allQ.filter(function(q){return q.l===qLvl&&(qThm==='all'||q.t===qThm);});
+  if(!qActive.length){alert('Aucune question pour cette combinaison. Essayez un autre th\u00E8me ou niveau.');return;}
+  qActive.sort(function(){return Math.random()-.5});
+  document.getElementById('qsetup').style.display='none';
+  document.getElementById('qplay').style.display='block';
+  var ln={d:'\u1F7E2 D\u00E9butant',i:'\u1F535 Interm\u00E9diaire',a:'\u1F534 Avanc\u00E9'};
+  var lc={d:'lbd',i:'lbi',a:'lba'};
+  document.getElementById('qbadge').innerHTML='<span class="lbadge '+lc[qLvl]+'">'+ln[qLvl]+(qThm!=='all'?' \u2014 '+qThm.charAt(0).toUpperCase()+qThm.slice(1):'')+'</span><p style="font-size:13px;color:#777;margin-bottom:1rem">'+qActive.length+' questions</p>';
+  var html='';
+  qActive.forEach(function(q,i){
+    html+='<div class="qq" id="qq'+i+'"><div class="qn">Question '+(i+1)+' / '+qActive.length+'</div><div class="qt">'+q.q+'</div><div class="qopts">';
+    q.o.forEach(function(opt,j){html+='<div class="qopt" id="op'+i+'_'+j+'" onclick="selOpt('+i+','+j+')"><input type="radio" name="q'+i+'" value="'+j+'"> '+opt+'</div>';});
+    html+='</div><div id="fb'+i+'" class="qfb"></div></div>';
+  });
+  document.getElementById('qquestions').innerHTML=html;
+  document.getElementById('qsubmit').style.display='block';
+  var sc=document.querySelector('.score');if(sc)sc.remove();
+}
+function selOpt(qi,oi){
+  if(qAns[qi]!==undefined)return;
+  document.querySelectorAll('#qq'+qi+' .qopt').forEach(function(el){el.classList.remove('sel')});
+  document.getElementById('op'+qi+'_'+oi).classList.add('sel');
+  qAns[qi]=oi;
+}
+function submitQ(){
+  var ans=Object.keys(qAns).length;
+  if(ans<qActive.length){alert('R\u00E9pondez \u00E0 toutes les questions ('+ans+' / '+qActive.length+' r\u00E9pondues).');return;}
+  var score=0;
+  qActive.forEach(function(q,i){
+    var u=qAns[i],ok=(u===q.a);if(ok)score++;
+    document.querySelectorAll('#qq'+i+' .qopt').forEach(function(el,j){if(j===q.a)el.classList.add('ok');else if(j===u&&!ok)el.classList.add('ko');});
+    var fb=document.getElementById('fb'+i);fb.className='qfb '+(ok?'ok':'ko');fb.textContent=(ok?'\u2713 Correct \u2014 ':'\u2717 Incorrect \u2014 ')+q.e;
+  });
+  document.getElementById('qsubmit').style.display='none';
+  var pct=Math.round(score/qActive.length*100);
+  var msg=pct>=80?'Excellent ! Tr\u00E8s bonne ma\u00EEtrise.':pct>=60?'Bon r\u00E9sultat, quelques points \u00E0 retravailler.':'\u00C0 revoir \u2014 relisez les fiches correspondantes.';
+  var sc='<div class="score"><div class="snum">'+score+'/'+qActive.length+'</div><div class="slbl">Score : '+pct+'%<br>'+msg+'</div><div style="display:flex;gap:8px;justify-content:center;margin-top:1rem"><button class="btn-s" onclick="restartQ()">Recommencer</button><button class="btn-p" onclick="backSetup()">Autre quiz</button></div></div>';
+  document.getElementById('qquestions').insertAdjacentHTML('beforebegin',sc);
+}
+function restartQ(){qAns={};var sc=document.querySelector('.score');if(sc)sc.remove();document.getElementById('qquestions').innerHTML='';document.getElementById('qsubmit').style.display='block';startQ();}
+function backSetup(){qAns={};var sc=document.querySelector('.score');if(sc)sc.remove();document.getElementById('qquestions').innerHTML='';document.getElementById('qplay').style.display='none';document.getElementById('qsetup').style.display='block';}
+</script>
+
+<!-- MAIL PANEL -->
+<div id="mail-overlay" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.55);z-index:999;padding:1rem;align-items:flex-start;justify-content:center;overflow-y:auto" onclick="if(event.target===this)closeMailPanel()">
+  <div style="background:#fff;border-radius:14px;padding:1.5rem;width:100%;max-width:640px;margin:1.5rem auto;position:relative">
+    <button onclick="closeMailPanel()" style="position:absolute;top:12px;right:14px;border:none;background:none;font-size:22px;cursor:pointer;color:#888;line-height:1">×</button>
+    <div style="font-size:16px;font-weight:600;margin-bottom:4px;color:#111">Preparation du mail client</div>
+    <div style="font-size:13px;color:#777;margin-bottom:1.25rem">Personnalisez puis copiez dans votre application mail</div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
+      <div>
+        <label style="font-size:12px;font-weight:500;color:#555;display:block;margin-bottom:4px">Destinataire</label>
+        <input id="mail-civility" type="text" value="Madame, Monsieur," placeholder="Madame Dupont," oninput="refreshMailPreview()" style="width:100%;padding:8px 10px;border:1px solid #ddd;border-radius:7px;font-size:13px">
+      </div>
+      <div>
+        <label style="font-size:12px;font-weight:500;color:#555;display:block;margin-bottom:4px">Votre nom</label>
+        <input id="mail-agent" type="text" placeholder="Benoit Martin" oninput="refreshMailPreview()" style="width:100%;padding:8px 10px;border:1px solid #ddd;border-radius:7px;font-size:13px">
+      </div>
+      <div>
+        <label style="font-size:12px;font-weight:500;color:#555;display:block;margin-bottom:4px">Telephone</label>
+        <input id="mail-phone" type="tel" placeholder="06 00 00 00 00" oninput="refreshMailPreview()" style="width:100%;padding:8px 10px;border:1px solid #ddd;border-radius:7px;font-size:13px">
+      </div>
+      <div>
+        <label style="font-size:12px;font-weight:500;color:#555;display:block;margin-bottom:4px">Email</label>
+        <input id="mail-email" type="email" placeholder="vous@century21.fr" oninput="refreshMailPreview()" style="width:100%;padding:8px 10px;border:1px solid #ddd;border-radius:7px;font-size:13px">
+      </div>
+    </div>
+
+    <label style="font-size:12px;font-weight:500;color:#555;display:block;margin-bottom:6px">Apercu du mail</label>
+    <textarea id="mail-text" style="width:100%;height:320px;border:1px solid #ddd;border-radius:8px;padding:12px;font-size:13px;font-family:inherit;resize:vertical;line-height:1.7;color:#1a1a1a;background:#fafaf8" readonly=""></textarea>
+
+    <div style="display:flex;gap:10px;margin-top:12px;flex-wrap:wrap;align-items:center">
+      <button class="btn-p" onclick="copyMailText()" id="copy-mail-btn">Copier le texte</button>
+      <button class="btn-s" onclick="closeMailPanel()">Fermer</button>
+      <div id="copy-ok" style="display:none;font-size:13px;color:#3B6D11;font-weight:500">Copie OK - collez dans votre mail</div>
+    </div>
+  </div>
+</div>
+
+
+
+</div></body></html>
