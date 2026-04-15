@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- saved from url=(0052)file:///C:/Users/Utilisateur/Downloads/index_31.html -->
+<!-- saved from url=(0052)file:///C:/Users/Utilisateur/Downloads/index_35.html -->
 <html lang="fr"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -171,7 +171,7 @@ a.btn-p{display:inline-block;text-decoration:none;color:#fff;}
 
 <div class="type-grid">
   <div class="type-card" onclick="selType(&#39;appart&#39;)" id="card-appart"><div class="type-icon">🏢</div><div class="type-label">Appartement</div></div>
-  <div class="type-card" onclick="selType(&#39;maison&#39;)" id="card-maison"><div class="type-icon">🏠</div><div class="type-label">Maison</div></div>
+  <div class="type-card active" onclick="selType(&#39;maison&#39;)" id="card-maison"><div class="type-icon">🏠</div><div class="type-label">Maison</div></div>
   <div class="type-card" onclick="selType(&#39;terrain&#39;)" id="card-terrain"><div class="type-icon">🌿</div><div class="type-label">Terrain</div></div>
 </div>
 
@@ -217,6 +217,20 @@ a.btn-p{display:inline-block;text-decoration:none;color:#fff;}
   <div class="item"><input type="checkbox" id="cb25"><label for="cb25">Tableau d'amortissement du crédit en cours</label><span class="badge bo">Si applicable</span></div>
 </div>
 
+<div class="category"><div class="cat-header">Situation locative</div>
+  <div class="loti-block" style="border-top:none">
+    <div class="loti-row">
+      <label>Logement loué :</label>
+      <select class="loti-sel" onchange="togLocation(&#39;appart&#39;,this.value)">
+        <option value="">— Sélectionner —</option>
+        <option value="oui">Oui</option>
+        <option value="non">Non</option>
+      </select>
+    </div>
+    <div class="loti-fields" id="lf-loc-appart"></div>
+  </div>
+</div>
+
 <div class="category"><div class="cat-header">Travaux réalisés &amp; plans</div>
   <div class="item"><input type="checkbox" id="cb26"><label for="cb26">Plans de l'appartement</label><span class="badge bo">Recommandé</span></div>
   <div class="item"><input type="checkbox" id="cb27"><label for="cb27">Factures travaux de rénovation (10 dernières années)</label><span class="badge bo">Recommandé</span></div>
@@ -243,8 +257,8 @@ a.btn-p{display:inline-block;text-decoration:none;color:#fff;}
 </div>
 
 <!-- ==== MAISON ==== -->
-<div class="checklist-container" id="list-maison">
-<div class="progress-text" id="pt-maison">0 / 0 cochés</div>
+<div class="checklist-container active" id="list-maison">
+<div class="progress-text" id="pt-maison">0 / 30 cochés</div>
 <div class="progress-bar"><div class="progress-fill" id="pf-maison" style="width:0%"></div></div>
 
 <div class="category"><div class="cat-header">Documents du propriétaire</div>
@@ -291,6 +305,20 @@ a.btn-p{display:inline-block;text-decoration:none;color:#fff;}
   <div class="item"><input type="checkbox" id="cb50"><label for="cb50">Avis de taxe foncière (2 dernières années)</label><span class="badge br">Obligatoire</span></div>
   <div class="item"><input type="checkbox" id="cb51"><label for="cb51">Avis de taxe d'habitation (si non exonéré)</label><span class="badge bo">Si applicable</span></div>
   <div class="item"><input type="checkbox" id="cb52"><label for="cb52">Tableau d'amortissement du crédit en cours</label><span class="badge bo">Si applicable</span></div>
+</div>
+
+<div class="category"><div class="cat-header">Situation locative</div>
+  <div class="loti-block" style="border-top:none">
+    <div class="loti-row">
+      <label>Logement loué :</label>
+      <select class="loti-sel" onchange="togLocation(&#39;maison&#39;,this.value)">
+        <option value="">— Sélectionner —</option>
+        <option value="oui">Oui</option>
+        <option value="non">Non</option>
+      </select>
+    </div>
+    <div class="loti-fields" id="lf-loc-maison"></div>
+  </div>
 </div>
 
 <div class="category"><div class="cat-header">Travaux réalisés &amp; plans</div>
@@ -651,6 +679,27 @@ function togLoti(zone,val){
 }
 
 function togLotiItem(item){var cb=item.querySelector('input[type=checkbox]');item.classList.toggle('checked',cb.checked);if(curType)updProg(curType);}
+function togLocation(zone,val){
+  var fEl=document.getElementById('lf-loc-'+zone);
+  fEl.innerHTML='';
+  if(!val||val==='non'){fEl.classList.remove('open');if(curType)updProg(curType);return;}
+  fEl.classList.add('open');
+  var items=['Bail en cours','Etat des lieux','Derniere quittance de loyer','Conge pour vente (si applicable)'];
+  var html='';
+  var idBase='loc_'+zone+'_'+Date.now();
+  items.forEach(function(lbl,i){
+    var cid=idBase+'_'+i;
+    html+='<div class="loti-item"><input type="checkbox" id="'+cid+'"><label for="'+cid+'">'+lbl+'</label></div>';
+  });
+  fEl.innerHTML=html;
+  fEl.querySelectorAll('.loti-item input[type=checkbox]').forEach(function(cb){
+    cb.addEventListener('change',function(){
+      cb.closest('.loti-item').classList.toggle('checked',cb.checked);
+      if(curType) updProg(curType);
+    });
+  });
+  if(curType)updProg(curType);
+}
 function buildCheckedLines(t){
   var lbl={appart:'Appartement',maison:'Maison',terrain:'Terrain'};
   var yr=document.getElementById('yr').value;
@@ -706,7 +755,10 @@ function buildCheckedText(t){
   c.querySelectorAll('.loti-item').forEach(function(item){
     var cb=item.querySelector('input[type=checkbox]');
     if(!cb||!cb.checked) return;
-    docs.push('Lotissement - '+item.querySelector('label').textContent.trim());
+    var lbl=item.querySelector('label').textContent.trim();
+    var isLoc=item.closest('.loti-fields')&&item.closest('.loti-fields').id&&item.closest('.loti-fields').id.indexOf('loc')===3;
+    if(isLoc) docs.push('Location - '+lbl);
+    else docs.push('Lotissement - '+lbl);
   });
 
   var intro='Madame, Monsieur,\n\n'
