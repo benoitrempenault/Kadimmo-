@@ -42,6 +42,22 @@ const SCENARIOS = {
       "comparaison (autre agence moins chère, vendre seul), coût des frais, argent (« j'en veux plus »). " +
       "Le mandat confiance = exclusivité d'interlocuteur (pas d'agence), garantie d'action 11 points, clause 50/50, fichier AMEPI.",
   },
+  acquereur: {
+    label: "Découverte acquéreur (premier entretien à l'agence)",
+    contexte:
+      "Tu es un ACHETEUR potentiel reçu à l'agence Century 21 pour un premier entretien de découverte. " +
+      "Tu cherches un bien dans le secteur et tu aimerais surtout qu'on te montre des maisons rapidement. " +
+      "Résistances typiques à doser selon ta difficulté : réticence à dévoiler ton financement, envie de visiter tout de suite " +
+      "sans répondre aux questions, tu regardes aussi les annonces entre particuliers.",
+    attendus:
+      "Ce que la méthode attend du conseiller : prendre le temps (une découverte dure 20 à 40 minutes, pas de question interdite, " +
+      "c'est lui qui mène la danse — « racontez-moi tout »), dérouler Passé (déjà acheté ? combien de biens visités ? pourquoi pas encore acheté ?) " +
+      "et Présent (d'où venez-vous, pourquoi ce déménagement, ce que vous voulez retrouver, besoins précis, degré d'urgence, solution de recours), " +
+      "creuser le financement (apport, crédit, bien à vendre — vendu, en cours ou pas encore en vente), identifier les décisionnaires, " +
+      "faire les 4 constats (a-t-il les moyens maintenant, est-il prêt, le veut-il vraiment, est-il seul décisionnaire) pour te qualifier A/B/C, " +
+      "découvrir ton SONCAS, expliquer le fonctionnement de l'agence (travail en exclusivité, clients avertis en amont du marché) " +
+      "et proposer un envoi ciblé de 3 fiches maximum avec rappel pour débriefer.",
+  },
 };
 
 const DIFFICULTES = {
@@ -86,6 +102,15 @@ const CONTEXTES_VENTE = {
   investisseur: "C'est un investissement locatif que tu revends ; tu raisonnes uniquement en chiffres (rentabilité, frais, délais).",
 };
 
+const CONTEXTES_ACHAT = {
+  mutation: "Tu arrives dans la région pour une mutation professionnelle dans 3 mois : il te faut un toit rapidement.",
+  succession: "Un héritage récent finance une bonne partie de ton achat ; le reste dépend d'un crédit pas encore monté.",
+  divorce: "Tu te reloges suite à une séparation ; budget serré, besoin rapide, et ton ex doit valider pour la garde des enfants.",
+  agrandissement: "Votre famille s'agrandit : il vous faut plus grand, mais votre appartement actuel n'est pas encore en vente.",
+  retraite: "Vous cherchez la maison de votre retraite dans la région ; vous avez le temps et vous êtes très exigeants.",
+  investisseur: "Tu cherches un investissement locatif ; tu raisonnes uniquement rentabilité, chiffres et délais.",
+};
+
 function pick(obj, key, fallback) {
   return Object.prototype.hasOwnProperty.call(obj, key) ? obj[key] : obj[fallback];
 }
@@ -94,10 +119,13 @@ function buildRoleplaySystem(scenario, difficulte, profil) {
   const sc = pick(SCENARIOS, scenario, "r1");
   const diff = pick(DIFFICULTES, difficulte, "facile");
   const soncas = pick(PROFILS_SONCAS, (profil && profil.soncas) || "", "sympathie");
-  const ctx = pick(CONTEXTES_VENTE, (profil && profil.contexte) || "", "mutation");
+  const isAchat = scenario === "acquereur";
+  const ctx = pick(isAchat ? CONTEXTES_ACHAT : CONTEXTES_VENTE, (profil && profil.contexte) || "", "mutation");
 
   return [
-    "Tu joues un CLIENT VENDEUR dans un jeu de rôle de formation pour conseillers immobiliers Century 21.",
+    "Tu joues un " +
+      (isAchat ? "CLIENT ACQUÉREUR" : "CLIENT VENDEUR") +
+      " dans un jeu de rôle de formation pour conseillers immobiliers Century 21.",
     "L'utilisateur est le CONSEILLER qui s'entraîne. Toi, tu es le client. Tu ne sors JAMAIS de ton rôle pendant la conversation.",
     "",
     "SCÉNARIO : " + sc.label + ".",
@@ -106,7 +134,9 @@ function buildRoleplaySystem(scenario, difficulte, profil) {
     "TON PERSONNAGE :",
     "- " + soncas,
     "- " + ctx,
-    "- Invente et garde cohérents les détails de ton bien (type, surface, année, quartier, travaux) et ton prénom/nom quand on te les demande.",
+    isAchat
+      ? "- Invente et garde cohérents les détails de ta recherche (budget, secteur, nombre de chambres, critères) et ton prénom/nom quand on te les demande."
+      : "- Invente et garde cohérents les détails de ton bien (type, surface, année, quartier, travaux) et ton prénom/nom quand on te les demande.",
     "",
     "TON ATTITUDE : " + diff.label + ". " + diff.consigne,
     "",
@@ -129,6 +159,7 @@ function buildDebriefSystem(scenario) {
     r1: "1) Cadre posé (déroulement en 2 RDV annoncé, accord demandé) 2) Écoute 20/80, questions ouvertes puis fermées 3) Trame Passé/Présent/Futur couverte 4) Attitude CARE et lien personnel (passions, feeling) 5) Prise de cartouches (idée de prix du client obtenue SANS donner de prix, crédit restant, décisionnaires, autres agences, coût de la non-vente) 6) Détection du profil SONCAS et adaptation",
     r2: "1) Accueil et reprise de contact (nouvelles, changements depuis le R1) 2) Cadre posé 3) Implication du client (validation fiche bien/prestations, participation sur le marché) 4) Présentation ACM en net vendeur (vendus/en vente/invendus, balance offres-demandes) 5) Plan de com : prix + moyens de promotion 6) Prises de température régulières et collecte des objections avant traitement",
     close: "1) Entonnoir respecté dans l'ordre : Accepter, Reformuler/Qualifier, Isoler, Pré-closer, Répondre, Closer 2) Identification correcte de la famille d'objection et parade adaptée 3) Utilisation des cartouches (éléments donnés plus tôt par le client) 4) Arguments mandat confiance justes (exclusivité d'interlocuteur, garantie d'action 11 points, clause 50/50, AMEPI) 5) Close franc (« allez, on y va ») sans pression maladroite 6) Confortage après accord",
+    acquereur: "1) Découverte approfondie et menée par le conseiller (questions Passé/Présent, « racontez-moi tout », pas de fiche bien dégainée trop tôt) 2) Financement creusé (apport, crédit, bien à vendre et son statut) 3) Les 4 constats faits (moyens, prêt, veut vraiment, seul décisionnaire) permettant une qualification A/B/C 4) Urgence et solution de recours explorées 5) Explication du fonctionnement de l'agence (exclusivités, clients avertis en amont, 3 fiches max + rappel pour débriefer) 6) Détection du SONCAS et adaptation du discours",
   };
 
   return [

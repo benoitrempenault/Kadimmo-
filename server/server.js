@@ -33,7 +33,7 @@ app.get("/healthz", (req, res) => {
 
 // Valide et nettoie le payload commun aux deux routes.
 function parsePayload(body) {
-  const scenario = ["r1", "r2", "close"].includes(body.scenario) ? body.scenario : null;
+  const scenario = ["r1", "r2", "close", "acquereur"].includes(body.scenario) ? body.scenario : null;
   const difficulte = ["facile", "reticent", "difficile"].includes(body.difficulte)
     ? body.difficulte
     : null;

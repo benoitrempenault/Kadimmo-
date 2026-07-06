@@ -673,6 +673,7 @@ a.btn-p{display:inline-block;text-decoration:none;color:#fff;}
         <button class="thbtn active" data-v="r1" onclick="tPick(this)">Début de R1</button>
         <button class="thbtn" data-v="r2" onclick="tPick(this)">R2 — avis de valeur</button>
         <button class="thbtn" data-v="close" onclick="tPick(this)">Close du mandat</button>
+        <button class="thbtn" data-v="acquereur" onclick="tPick(this)">Découverte acquéreur</button>
       </div>
     </div>
     <div class="tgroup"><div class="tgt">Difficulté du client</div>
@@ -703,6 +704,10 @@ a.btn-p{display:inline-block;text-decoration:none;color:#fff;}
           <option value="investisseur">Investisseur</option>
         </select>
       </div>
+      <label style="display:flex;align-items:center;gap:8px;font-size:14px;margin-top:10px;cursor:pointer">
+        <input type="checkbox" id="tmystere" onchange="document.getElementById('tsoncas').disabled=this.checked;document.getElementById('tctx').disabled=this.checked">
+        🎭 Profil mystère — profil tiré au sort et caché : à vous de deviner le SONCAS avant le débriefing
+      </label>
     </div>
     <button class="btn-p" onclick="startTrain()">Démarrer la session</button>
     <p style="font-size:12px;color:#999;margin-top:10px" id="tsetupnote"></p>
@@ -716,9 +721,20 @@ a.btn-p{display:inline-block;text-decoration:none;color:#fff;}
       <input class="tinput" id="tinput" type="text" placeholder="Ou écrivez votre réplique…" onkeydown="if(event.key==='Enter')sendTrainInput()">
       <button class="btn-s" onclick="sendTrainInput()">Envoyer</button>
     </div>
-    <div style="display:flex;gap:8px;margin-top:12px">
+    <div style="display:flex;gap:8px;margin-top:12px" id="tactions">
       <button class="btn-p" onclick="endTrain()">Terminer et être débriefé</button>
       <button class="btn-s" onclick="quitTrain()">Abandonner</button>
+    </div>
+    <div id="tguess" style="display:none;margin-top:14px">
+      <div class="tgt">🎭 Avant le débriefing : quel était le profil SONCAS de votre client ?</div>
+      <div class="qthm" id="tguessbtns">
+        <button class="thbtn" data-v="securite" onclick="guessSoncas(this)">Sécurité</button>
+        <button class="thbtn" data-v="orgueil" onclick="guessSoncas(this)">Orgueil</button>
+        <button class="thbtn" data-v="nouveaute" onclick="guessSoncas(this)">Nouveauté</button>
+        <button class="thbtn" data-v="confort" onclick="guessSoncas(this)">Confort</button>
+        <button class="thbtn" data-v="argent" onclick="guessSoncas(this)">Argent</button>
+        <button class="thbtn" data-v="sympathie" onclick="guessSoncas(this)">Sympathie</button>
+      </div>
     </div>
   </div>
   <div id="tdebrief" style="display:none"></div>
@@ -1098,7 +1114,7 @@ function backSetup(){qAns={};var sc=document.querySelector('.score');if(sc)sc.re
 
 // ===== Entrainement vocal IA =====
 var TRAIN_API=(location.hostname==='localhost'||location.hostname==='127.0.0.1')?'http://localhost:3999':'https://kadimmo-ia.onrender.com';
-var tMsgs=[],tBusy=false,tEnded=false,tRec=null,tRecOn=false,tProfil={};
+var tMsgs=[],tBusy=false,tEnded=false,tRec=null,tRecOn=false,tProfil={},tMystere=false,tGuess=null,tGuessLabel='',tRevealS='',tRevealC='';
 
 function tEl(id){return document.getElementById(id);}
 function setTStatus(t){tEl('tstatus').textContent=t;}
@@ -1118,16 +1134,21 @@ function tLabel(id){return tEl(id).querySelector('.thbtn.active').textContent;}
 function tRandomSel(sel){return sel.options[1+Math.floor(Math.random()*(sel.options.length-1))];}
 
 function startTrain(){
-  tMsgs=[];tBusy=false;tEnded=false;
+  tMsgs=[];tBusy=false;tEnded=false;tGuess=null;tGuessLabel='';
+  tMystere=tEl('tmystere').checked;
   var sSel=tEl('tsoncas'),cSel=tEl('tctx');
-  var sOpt=sSel.value?sSel.options[sSel.selectedIndex]:tRandomSel(sSel);
-  var cOpt=cSel.value?cSel.options[cSel.selectedIndex]:tRandomSel(cSel);
+  var sOpt=(!tMystere&&sSel.value)?sSel.options[sSel.selectedIndex]:tRandomSel(sSel);
+  var cOpt=(!tMystere&&cSel.value)?cSel.options[cSel.selectedIndex]:tRandomSel(cSel);
   tProfil={soncas:sOpt.value,contexte:cOpt.value};
+  tRevealS=sOpt.text;tRevealC=cOpt.text;
   tEl('tsetup').style.display='none';
   tEl('tdebrief').style.display='none';
   tEl('tplay').style.display='block';
+  tEl('tguess').style.display='none';
+  tEl('tactions').style.display='flex';
   tEl('tchat').innerHTML='';
-  tEl('tbadge').innerHTML='<span class="lbadge lbi">'+tLabel('tscen')+' \u2014 '+tLabel('tdiff')+' \u2014 '+sOpt.text+' / '+cOpt.text+'</span>';
+  var prof=tMystere?'\uD83C\uDFAD Profil myst\u00E8re':(sOpt.text+' / '+cOpt.text);
+  tEl('tbadge').innerHTML='<span class="lbadge lbi">'+tLabel('tscen')+' \u2014 '+tLabel('tdiff')+' \u2014 '+prof+'</span>';
   setTStatus('\u00C0 vous : saluez votre client et lancez le rendez-vous.');
   tEl('tinput').focus();
 }
@@ -1221,15 +1242,32 @@ function endTrain(){
   if(tBusy)return;
   var userTurns=tMsgs.filter(function(m){return m.role==='user';}).length;
   if(userTurns<1){setTStatus('Parlez au moins une fois avant le d\u00E9briefing !');return;}
+  if(tMystere&&tGuess===null){
+    tEl('tactions').style.display='none';
+    tEl('tguess').style.display='block';
+    setTStatus('Posez votre diagnostic : quel profil SONCAS avez-vous d\u00E9tect\u00E9 ?');
+    return;
+  }
+  runDebrief();
+}
+
+function guessSoncas(btn){
+  tGuess=btn.getAttribute('data-v');
+  tGuessLabel=btn.textContent;
+  tEl('tguess').style.display='none';
+  runDebrief();
+}
+
+function runDebrief(){
   tBusy=true;tEnded=true;
   try{speechSynthesis.cancel();}catch(e){}
   setTStatus('Le formateur pr\u00E9pare votre d\u00E9briefing\u2026 (environ 30 s)');
   trainFetch('/api/debrief').then(function(data){
     tBusy=false;
-    if(data.error){tEnded=false;setTStatus(data.error);return;}
+    if(data.error){tEnded=false;tEl('tactions').style.display='flex';setTStatus(data.error);return;}
     showDebrief(data.debrief);
   }).catch(function(){
-    tBusy=false;tEnded=false;
+    tBusy=false;tEnded=false;tEl('tactions').style.display='flex';
     setTStatus('Serveur injoignable. R\u00E9essayez.');
   });
 }
@@ -1238,7 +1276,12 @@ function tEsc(s){var d=document.createElement('div');d.textContent=String(s==nul
 
 function showDebrief(d){
   tEl('tplay').style.display='none';
-  var h='<div class="score"><div class="snum">'+tEsc(d.note)+'/20</div><div class="slbl">'+tEsc(d.resume)+'</div></div>';
+  var h='';
+  if(tMystere){
+    var ok=tGuess===tProfil.soncas;
+    h+='<div class="kp '+(ok?'kps':'kpw')+'" style="margin-bottom:12px">\uD83C\uDFAD Profil r\u00E9el : <strong>'+tEsc(tRevealS)+'</strong> ('+tEsc(tRevealC)+') \u2014 votre diagnostic : <strong>'+tEsc(tGuessLabel)+'</strong>. '+(ok?'Bien vu, profil d\u00E9tect\u00E9 !':'Rat\u00E9 \u2014 relisez la fiche SONCAS et guettez les indices dans les mots du client.')+'</div>';
+  }
+  h+='<div class="score"><div class="snum">'+tEsc(d.note)+'/20</div><div class="slbl">'+tEsc(d.resume)+'</div></div>';
   h+='<div class="cc"><h3>Points forts</h3><ul class="blist">'+d.points_forts.map(function(x){return '<li>'+tEsc(x)+'</li>';}).join('')+'</ul></div>';
   h+='<div class="cc"><h3>\u00C0 travailler</h3><ul class="blist">'+d.axes_travail.map(function(x){return '<li>'+tEsc(x)+'</li>';}).join('')+'</ul></div>';
   h+='<div class="cc"><h3>Moments cl\u00E9s</h3>'+d.moments_cles.map(function(m){return '<div class="qb" style="margin-bottom:8px">\u00AB '+tEsc(m.citation)+' \u00BB</div><div class="kp" style="margin-bottom:12px">'+tEsc(m.commentaire)+'</div>';}).join('')+'</div>';
