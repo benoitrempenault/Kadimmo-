@@ -83,6 +83,19 @@ a.btn-p{display:inline-block;text-decoration:none;color:#fff;}
 .ftabs{display:flex;gap:0;margin-bottom:1.25rem;background:#fff;border:1px solid #e0ddd5;border-radius:8px;overflow:hidden;width:fit-content}
 .ftab{padding:8px 20px;border:none;background:transparent;cursor:pointer;font-size:14px;color:#666;font-weight:500}
 .ftab.active{background:#1a1a1a;color:#fff}
+.tchat{display:flex;flex-direction:column;gap:10px;background:#fff;border:1px solid #e0ddd5;border-radius:8px;padding:14px;min-height:260px;max-height:420px;overflow-y:auto;margin-bottom:10px}
+.tmsg{max-width:80%;padding:9px 13px;border-radius:12px;font-size:14px;line-height:1.45}
+.tme{align-self:flex-end;background:#1a1a1a;color:#fff;border-bottom-right-radius:3px}
+.tclient{align-self:flex-start;background:#f0ede6;color:#1a1a1a;border-bottom-left-radius:3px}
+.tstatus{font-size:13px;color:#8a8578;min-height:18px;margin-bottom:8px;font-style:italic}
+.tbar{display:flex;gap:8px;align-items:center}
+.tmic{width:46px;height:46px;border-radius:50%;border:1px solid #e0ddd5;background:#fff;font-size:20px;cursor:pointer;flex-shrink:0}
+.tmic.rec{background:#c0392b;border-color:#c0392b;animation:tpulse 1.2s infinite}
+@keyframes tpulse{50%{opacity:.55}}
+.tinput{flex:1;padding:11px 12px;border:1px solid #e0ddd5;border-radius:8px;font-size:14px;font-family:inherit;min-width:0}
+.tsel{padding:9px 10px;border:1px solid #e0ddd5;border-radius:8px;font-size:14px;background:#fff;font-family:inherit}
+.tgroup{margin-bottom:1rem}
+.tgt{font-size:12px;font-weight:600;color:#888;text-transform:uppercase;margin-bottom:8px}
 .modnav{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:1.25rem}
 .modbtn{padding:7px 14px;border:1px solid #e0ddd5;border-radius:8px;background:#fff;cursor:pointer;font-size:13px;color:#555;font-weight:500}
 .modbtn:hover{background:#f5f4f0}
@@ -420,6 +433,7 @@ a.btn-p{display:inline-block;text-decoration:none;color:#fff;}
 <div class="ftabs">
   <button class="ftab active" onclick="showFTab(&#39;fiches&#39;,this)">Fiches</button>
   <button class="ftab" onclick="showFTab(&#39;quiz&#39;,this)">Quiz</button>
+  <button class="ftab" onclick="showFTab(&#39;train&#39;,this)">Entraînement</button>
 </div>
 
 <div id="f-fiches">
@@ -648,6 +662,66 @@ a.btn-p{display:inline-block;text-decoration:none;color:#fff;}
     <div id="qquestions"></div>
     <button class="btn-p" onclick="submitQ()" id="qsubmit" style="margin-top:1rem">Valider mes réponses</button>
   </div>
+</div>
+
+<!-- ==== ENTRAINEMENT ==== -->
+<div id="f-train" style="display:none">
+  <div id="tsetup">
+    <p style="font-size:14px;color:#555;margin-bottom:1.25rem">Entraînez-vous en conditions réelles : l'IA joue un client vendeur, vous jouez le conseiller. Parlez au micro (ou écrivez), puis terminez la session pour recevoir votre débriefing noté.</p>
+    <div class="tgroup"><div class="tgt">Scénario</div>
+      <div class="qthm" id="tscen">
+        <button class="thbtn active" data-v="r1" onclick="tPick(this)">Début de R1</button>
+        <button class="thbtn" data-v="r2" onclick="tPick(this)">R2 — avis de valeur</button>
+        <button class="thbtn" data-v="close" onclick="tPick(this)">Close du mandat</button>
+      </div>
+    </div>
+    <div class="tgroup"><div class="tgt">Difficulté du client</div>
+      <div class="qthm" id="tdiff">
+        <button class="thbtn active" data-v="facile" onclick="tPick(this)">🟢 Facile</button>
+        <button class="thbtn" data-v="reticent" onclick="tPick(this)">🔵 Réticent</button>
+        <button class="thbtn" data-v="difficile" onclick="tPick(this)">🔴 Difficile</button>
+      </div>
+    </div>
+    <div class="tgroup"><div class="tgt">Profil du client</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <select class="tsel" id="tsoncas">
+          <option value="">SONCAS : tiré au sort</option>
+          <option value="securite">Sécurité</option>
+          <option value="orgueil">Orgueil</option>
+          <option value="nouveaute">Nouveauté</option>
+          <option value="confort">Confort</option>
+          <option value="argent">Argent</option>
+          <option value="sympathie">Sympathie</option>
+        </select>
+        <select class="tsel" id="tctx">
+          <option value="">Situation : tirée au sort</option>
+          <option value="mutation">Mutation professionnelle</option>
+          <option value="succession">Succession</option>
+          <option value="divorce">Séparation</option>
+          <option value="agrandissement">Famille qui s'agrandit</option>
+          <option value="retraite">Départ en retraite</option>
+          <option value="investisseur">Investisseur</option>
+        </select>
+      </div>
+    </div>
+    <button class="btn-p" onclick="startTrain()">Démarrer la session</button>
+    <p style="font-size:12px;color:#999;margin-top:10px" id="tsetupnote"></p>
+  </div>
+  <div id="tplay" style="display:none">
+    <div id="tbadge" style="margin-bottom:10px"></div>
+    <div class="tchat" id="tchat"></div>
+    <div class="tstatus" id="tstatus"></div>
+    <div class="tbar">
+      <button class="tmic" id="tmic" onclick="toggleMic()" title="Parler">🎤</button>
+      <input class="tinput" id="tinput" type="text" placeholder="Ou écrivez votre réplique…" onkeydown="if(event.key==='Enter')sendTrainInput()">
+      <button class="btn-s" onclick="sendTrainInput()">Envoyer</button>
+    </div>
+    <div style="display:flex;gap:8px;margin-top:12px">
+      <button class="btn-p" onclick="endTrain()">Terminer et être débriefé</button>
+      <button class="btn-s" onclick="quitTrain()">Abandonner</button>
+    </div>
+  </div>
+  <div id="tdebrief" style="display:none"></div>
 </div>
 </div>
 
@@ -896,6 +970,8 @@ function showFTab(tab,btn){
   document.querySelectorAll('.ftab').forEach(function(b){b.classList.remove('active')});btn.classList.add('active');
   document.getElementById('f-fiches').style.display=tab==='fiches'?'block':'none';
   document.getElementById('f-quiz').style.display=tab==='quiz'?'block':'none';
+  document.getElementById('f-train').style.display=tab==='train'?'block':'none';
+  if(tab==='train')trainWake();
 }
 function showMod(id,btn){
   document.querySelectorAll('.fiche').forEach(function(f){f.classList.remove('active')});
@@ -1019,6 +1095,167 @@ function submitQ(){
 }
 function restartQ(){qAns={};var sc=document.querySelector('.score');if(sc)sc.remove();document.getElementById('qquestions').innerHTML='';document.getElementById('qsubmit').style.display='block';startQ();}
 function backSetup(){qAns={};var sc=document.querySelector('.score');if(sc)sc.remove();document.getElementById('qquestions').innerHTML='';document.getElementById('qplay').style.display='none';document.getElementById('qsetup').style.display='block';}
+
+// ===== Entrainement vocal IA =====
+var TRAIN_API=(location.hostname==='localhost'||location.hostname==='127.0.0.1')?'http://localhost:3999':'https://kadimmo-ia.onrender.com';
+var tMsgs=[],tBusy=false,tEnded=false,tRec=null,tRecOn=false,tProfil={};
+
+function tEl(id){return document.getElementById(id);}
+function setTStatus(t){tEl('tstatus').textContent=t;}
+
+function trainWake(){
+  fetch(TRAIN_API+'/healthz').catch(function(){});
+  var SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(!SR){tEl('tmic').style.display='none';tEl('tsetupnote').textContent='Micro non disponible sur ce navigateur : vous pourrez \u00E9crire vos r\u00E9pliques.';}
+}
+
+function tPick(btn){
+  btn.parentNode.querySelectorAll('.thbtn').forEach(function(b){b.classList.remove('active')});
+  btn.classList.add('active');
+}
+function tVal(id){return tEl(id).querySelector('.thbtn.active').getAttribute('data-v');}
+function tLabel(id){return tEl(id).querySelector('.thbtn.active').textContent;}
+function tRandomSel(sel){return sel.options[1+Math.floor(Math.random()*(sel.options.length-1))];}
+
+function startTrain(){
+  tMsgs=[];tBusy=false;tEnded=false;
+  var sSel=tEl('tsoncas'),cSel=tEl('tctx');
+  var sOpt=sSel.value?sSel.options[sSel.selectedIndex]:tRandomSel(sSel);
+  var cOpt=cSel.value?cSel.options[cSel.selectedIndex]:tRandomSel(cSel);
+  tProfil={soncas:sOpt.value,contexte:cOpt.value};
+  tEl('tsetup').style.display='none';
+  tEl('tdebrief').style.display='none';
+  tEl('tplay').style.display='block';
+  tEl('tchat').innerHTML='';
+  tEl('tbadge').innerHTML='<span class="lbadge lbi">'+tLabel('tscen')+' \u2014 '+tLabel('tdiff')+' \u2014 '+sOpt.text+' / '+cOpt.text+'</span>';
+  setTStatus('\u00C0 vous : saluez votre client et lancez le rendez-vous.');
+  tEl('tinput').focus();
+}
+
+function addTMsg(role,text){
+  var d=document.createElement('div');
+  d.className='tmsg '+(role==='user'?'tme':'tclient');
+  d.textContent=text;
+  var c=tEl('tchat');c.appendChild(d);c.scrollTop=c.scrollHeight;
+}
+
+function sendTrainInput(){
+  var inp=tEl('tinput');var t=inp.value.trim();
+  if(!t)return;
+  inp.value='';
+  sendTrain(t);
+}
+
+function sendTrain(text){
+  if(tBusy||tEnded)return;
+  tBusy=true;
+  tMsgs.push({role:'user',content:text});
+  addTMsg('user',text);
+  setTStatus(tMsgs.length<=1?'Le client arrive\u2026 (jusqu\u2019\u00E0 50 s si le serveur \u00E9tait endormi)':'Le client r\u00E9fl\u00E9chit\u2026');
+  trainFetch('/api/roleplay').then(function(data){
+    tBusy=false;
+    if(data.error){setTStatus(data.error);tMsgs.pop();tEl('tchat').lastChild.remove();tEl('tinput').value=text;return;}
+    tMsgs.push({role:'assistant',content:data.reply});
+    addTMsg('assistant',data.reply);
+    setTStatus('');
+    speak(data.reply);
+  }).catch(function(){
+    tBusy=false;
+    setTStatus('Serveur injoignable. V\u00E9rifiez la connexion et r\u00E9essayez.');
+    tMsgs.pop();tEl('tchat').lastChild.remove();tEl('tinput').value=text;
+  });
+}
+
+function trainFetch(path){
+  return fetch(TRAIN_API+path,{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({scenario:tVal('tscen'),difficulte:tVal('tdiff'),profil:tProfil,messages:tMsgs})
+  }).then(function(r){return r.json();});
+}
+
+function speak(text){
+  if(!window.speechSynthesis)return;
+  try{
+    speechSynthesis.cancel();
+    var u=new SpeechSynthesisUtterance(text);
+    u.lang='fr-FR';
+    var v=speechSynthesis.getVoices().filter(function(x){return x.lang&&x.lang.indexOf('fr')===0;});
+    if(v.length)u.voice=v[0];
+    speechSynthesis.speak(u);
+  }catch(e){}
+}
+
+function toggleMic(){
+  var SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(!SR)return;
+  if(tRecOn){try{tRec.stop();}catch(e){}return;}
+  try{speechSynthesis.cancel();}catch(e){}
+  tRec=new SR();
+  tRec.lang='fr-FR';tRec.interimResults=true;tRec.continuous=false;
+  var finalT='';
+  tRec.onresult=function(ev){
+    var interim='';
+    for(var i=ev.resultIndex;i<ev.results.length;i++){
+      if(ev.results[i].isFinal)finalT+=ev.results[i][0].transcript;
+      else interim+=ev.results[i][0].transcript;
+    }
+    setTStatus((finalT||interim)?('\u00AB '+(finalT||interim)+' \u00BB'):'Je vous \u00E9coute\u2026');
+  };
+  tRec.onend=function(){
+    tRecOn=false;tEl('tmic').classList.remove('rec');
+    var t=finalT.trim();
+    if(t){setTStatus('');sendTrain(t);}
+    else setTStatus('');
+  };
+  tRec.onerror=function(ev){
+    tRecOn=false;tEl('tmic').classList.remove('rec');
+    setTStatus(ev.error==='not-allowed'?'Micro refus\u00E9 : autorisez-le dans les r\u00E9glages du navigateur, ou \u00E9crivez.':'Micro indisponible : \u00E9crivez votre r\u00E9plique.');
+  };
+  tRecOn=true;tEl('tmic').classList.add('rec');
+  setTStatus('Je vous \u00E9coute\u2026');
+  try{tRec.start();}catch(e){tRecOn=false;tEl('tmic').classList.remove('rec');}
+}
+
+function endTrain(){
+  if(tBusy)return;
+  var userTurns=tMsgs.filter(function(m){return m.role==='user';}).length;
+  if(userTurns<1){setTStatus('Parlez au moins une fois avant le d\u00E9briefing !');return;}
+  tBusy=true;tEnded=true;
+  try{speechSynthesis.cancel();}catch(e){}
+  setTStatus('Le formateur pr\u00E9pare votre d\u00E9briefing\u2026 (environ 30 s)');
+  trainFetch('/api/debrief').then(function(data){
+    tBusy=false;
+    if(data.error){tEnded=false;setTStatus(data.error);return;}
+    showDebrief(data.debrief);
+  }).catch(function(){
+    tBusy=false;tEnded=false;
+    setTStatus('Serveur injoignable. R\u00E9essayez.');
+  });
+}
+
+function tEsc(s){var d=document.createElement('div');d.textContent=String(s==null?'':s);return d.innerHTML;}
+
+function showDebrief(d){
+  tEl('tplay').style.display='none';
+  var h='<div class="score"><div class="snum">'+tEsc(d.note)+'/20</div><div class="slbl">'+tEsc(d.resume)+'</div></div>';
+  h+='<div class="cc"><h3>Points forts</h3><ul class="blist">'+d.points_forts.map(function(x){return '<li>'+tEsc(x)+'</li>';}).join('')+'</ul></div>';
+  h+='<div class="cc"><h3>\u00C0 travailler</h3><ul class="blist">'+d.axes_travail.map(function(x){return '<li>'+tEsc(x)+'</li>';}).join('')+'</ul></div>';
+  h+='<div class="cc"><h3>Moments cl\u00E9s</h3>'+d.moments_cles.map(function(m){return '<div class="qb" style="margin-bottom:8px">\u00AB '+tEsc(m.citation)+' \u00BB</div><div class="kp" style="margin-bottom:12px">'+tEsc(m.commentaire)+'</div>';}).join('')+'</div>';
+  h+='<div style="display:flex;gap:8px;margin-top:1rem"><button class="btn-p" onclick="restartTrain()">Nouvelle session</button></div>';
+  tEl('tdebrief').innerHTML=h;
+  tEl('tdebrief').style.display='block';
+}
+
+function restartTrain(){
+  tEl('tdebrief').style.display='none';
+  tEl('tsetup').style.display='block';
+}
+function quitTrain(){
+  try{speechSynthesis.cancel();}catch(e){}
+  tEl('tplay').style.display='none';
+  tEl('tsetup').style.display='block';
+}
 </script>
 
 <!-- MAIL PANEL -->
