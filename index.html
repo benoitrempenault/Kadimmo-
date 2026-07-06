@@ -983,7 +983,7 @@ function startQ(){
   qActive.sort(function(){return Math.random()-.5});
   document.getElementById('qsetup').style.display='none';
   document.getElementById('qplay').style.display='block';
-  var ln={d:'\u1F7E2 D\u00E9butant',i:'\u1F535 Interm\u00E9diaire',a:'\u1F534 Avanc\u00E9'};
+  var ln={d:'\uD83D\uDFE2 D\u00E9butant',i:'\uD83D\uDD35 Interm\u00E9diaire',a:'\uD83D\uDD34 Avanc\u00E9'};
   var lc={d:'lbd',i:'lbi',a:'lba'};
   document.getElementById('qbadge').innerHTML='<span class="lbadge '+lc[qLvl]+'">'+ln[qLvl]+(qThm!=='all'?' \u2014 '+qThm.charAt(0).toUpperCase()+qThm.slice(1):'')+'</span><p style="font-size:13px;color:#777;margin-bottom:1rem">'+qActive.length+' questions</p>';
   var html='';
