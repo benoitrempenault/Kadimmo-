@@ -96,6 +96,11 @@ a.btn-p{display:inline-block;text-decoration:none;color:#fff;}
 .tsel{padding:9px 10px;border:1px solid #e0ddd5;border-radius:8px;font-size:14px;background:#fff;font-family:inherit}
 .tgroup{margin-bottom:1rem}
 .tgt{font-size:12px;font-weight:600;color:#888;text-transform:uppercase;margin-bottom:8px}
+.tcoach{align-self:stretch;max-width:100%;background:#fdf6e3;border:1px solid #e8dcc0;color:#6b5d2f;border-radius:10px;padding:9px 13px;font-size:13px;line-height:1.45}
+.thint{align-self:stretch;max-width:100%;background:#eef4fb;border:1px dashed #b8cfe8;color:#3d5a80;border-radius:10px;padding:9px 13px;font-size:13px;font-style:italic}
+.tbadge{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:20px;font-size:13px;border:1px solid #e0ddd5;background:#fff;margin:0 6px 6px 0}
+.tbadge.won{background:#eaf6ea;border-color:#bcdcbc;color:#2d6a2d;font-weight:600}
+.tbadge.locked{opacity:.45}
 .modnav{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:1.25rem}
 .modbtn{padding:7px 14px;border:1px solid #e0ddd5;border-radius:8px;background:#fff;cursor:pointer;font-size:13px;color:#555;font-weight:500}
 .modbtn:hover{background:#f5f4f0}
@@ -667,7 +672,8 @@ a.btn-p{display:inline-block;text-decoration:none;color:#fff;}
 <!-- ==== ENTRAINEMENT ==== -->
 <div id="f-train" style="display:none">
   <div id="tsetup">
-    <p style="font-size:14px;color:#555;margin-bottom:1.25rem">Entraînez-vous en conditions réelles : l'IA joue un client vendeur, vous jouez le conseiller. Parlez au micro (ou écrivez), puis terminez la session pour recevoir votre débriefing noté.</p>
+    <p style="font-size:14px;color:#555;margin-bottom:1rem">Entraînez-vous en conditions réelles : l'IA joue un client, vous jouez le conseiller. Parlez au micro (ou écrivez), puis terminez la session pour recevoir votre débriefing noté.</p>
+    <div id="tbadges" style="margin-bottom:1.25rem"></div>
     <div class="tgroup"><div class="tgt">Scénario</div>
       <div class="qthm" id="tscen">
         <button class="thbtn active" data-v="r1" onclick="tPick(this)">Début de R1</button>
@@ -709,7 +715,10 @@ a.btn-p{display:inline-block;text-decoration:none;color:#fff;}
         🎭 Profil mystère — profil tiré au sort et caché : à vous de deviner le SONCAS avant le débriefing
       </label>
     </div>
-    <button class="btn-p" onclick="startTrain()">Démarrer la session</button>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button class="btn-p" onclick="startTrain()">Démarrer la session</button>
+      <button class="btn-s" onclick="startDrill()">⚡ Drill objections (5 min)</button>
+    </div>
     <p style="font-size:12px;color:#999;margin-top:10px" id="tsetupnote"></p>
   </div>
   <div id="tplay" style="display:none">
@@ -721,8 +730,9 @@ a.btn-p{display:inline-block;text-decoration:none;color:#fff;}
       <input class="tinput" id="tinput" type="text" placeholder="Ou écrivez votre réplique…" onkeydown="if(event.key==='Enter')sendTrainInput()">
       <button class="btn-s" onclick="sendTrainInput()">Envoyer</button>
     </div>
-    <div style="display:flex;gap:8px;margin-top:12px" id="tactions">
-      <button class="btn-p" onclick="endTrain()">Terminer et être débriefé</button>
+    <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap" id="tactions">
+      <button class="btn-p" id="tendbtn" onclick="endTrain()">Terminer et être débriefé</button>
+      <button class="btn-s" id="thintbtn" onclick="askHint()">💡 Indice (−1 pt)</button>
       <button class="btn-s" onclick="quitTrain()">Abandonner</button>
     </div>
     <div id="tguess" style="display:none;margin-top:14px">
@@ -1113,18 +1123,138 @@ function restartQ(){qAns={};var sc=document.querySelector('.score');if(sc)sc.rem
 function backSetup(){qAns={};var sc=document.querySelector('.score');if(sc)sc.remove();document.getElementById('qquestions').innerHTML='';document.getElementById('qplay').style.display='none';document.getElementById('qsetup').style.display='block';}
 
 // ===== Entrainement vocal IA =====
+
+// ----- Sauvegarde du dossier Documents vendeur -----
+var DOSSIER_KEY='kadimmo_dossier_v1';
+function dossierSave(){
+  try{
+    var sels=[].map.call(document.querySelectorAll('.loti-sel'),function(s){return s.value;});
+    var stat={};
+    document.querySelectorAll('.checklist-container input[type=checkbox]').forEach(function(cb){
+      if(cb.id&&!cb.closest('.loti-fields')&&cb.checked)stat[cb.id]=1;
+    });
+    var dyn={},txt={};
+    document.querySelectorAll('.loti-fields').forEach(function(f){
+      if(!f.id)return;
+      dyn[f.id]=[].map.call(f.querySelectorAll('input[type=checkbox]'),function(cb){return cb.checked?1:0;});
+      var t=f.querySelector('input[type=text]');
+      if(t&&t.value)txt[f.id]=t.value;
+    });
+    localStorage.setItem(DOSSIER_KEY,JSON.stringify({yr:document.getElementById('yr').value,type:curType,stat:stat,sels:sels,dyn:dyn,txt:txt}));
+  }catch(e){}
+}
+function dossierLoad(){
+  var raw=null;
+  try{raw=localStorage.getItem(DOSSIER_KEY);}catch(e){}
+  if(!raw)return;
+  var d;try{d=JSON.parse(raw);}catch(e){return;}
+  if(d.yr){document.getElementById('yr').value=d.yr;applyYear();}
+  if(d.type)selType(d.type);
+  var sels=document.querySelectorAll('.loti-sel');
+  (d.sels||[]).forEach(function(v,i){
+    if(sels[i]&&v){sels[i].value=v;sels[i].dispatchEvent(new Event('change'));}
+  });
+  Object.keys(d.stat||{}).forEach(function(id){
+    var cb=document.getElementById(id);
+    if(cb&&cb.type==='checkbox'&&!cb.checked){cb.checked=true;cb.dispatchEvent(new Event('change'));}
+  });
+  Object.keys(d.dyn||{}).forEach(function(fid){
+    var f=document.getElementById(fid);if(!f)return;
+    var cbs=f.querySelectorAll('input[type=checkbox]');
+    (d.dyn[fid]||[]).forEach(function(v,i){
+      if(v&&cbs[i]&&!cbs[i].checked){cbs[i].checked=true;cbs[i].dispatchEvent(new Event('change'));}
+    });
+  });
+  Object.keys(d.txt||{}).forEach(function(fid){
+    var f=document.getElementById(fid);if(!f)return;
+    var t=f.querySelector('input[type=text]');if(t)t.value=d.txt[fid];
+  });
+  if(curType)updProg(curType);
+}
+document.addEventListener('DOMContentLoaded',function(){
+  dossierLoad();
+  document.body.addEventListener('change',function(e){
+    if(e.target&&e.target.matches&&e.target.matches('.checklist-container input, .checklist-container select, #yr'))dossierSave();
+  });
+  document.body.addEventListener('input',function(e){
+    if(e.target&&e.target.matches&&e.target.matches('.checklist-container input[type=text], #yr'))dossierSave();
+  });
+  var _resetList=resetList;
+  resetList=function(t){_resetList(t);dossierSave();};
+});
+
+// ----- Etat de l'entrainement -----
 var TRAIN_API=(location.hostname==='localhost'||location.hostname==='127.0.0.1')?'http://localhost:3999':'https://kadimmo-ia.onrender.com';
 var tMsgs=[],tBusy=false,tEnded=false,tRec=null,tRecOn=false,tProfil={},tMystere=false,tGuess=null,tGuessLabel='',tRevealS='',tRevealC='';
+var tHints=0,tArchive=[],tDrill=false,tDrillList=[],tDrillIdx=0,tDrillScore=0;
+var tPremium=false,tAudio=null,tVoice=null,tAudioUnlocked=false;
+var HIST_KEY='kadimmo_train_hist_v1';
+var SILENT_WAV='data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQAAAAA=';
 
 function tEl(id){return document.getElementById(id);}
 function setTStatus(t){tEl('tstatus').textContent=t;}
 
 function trainWake(){
-  fetch(TRAIN_API+'/healthz').catch(function(){});
+  fetch(TRAIN_API+'/healthz').then(function(r){return r.json();}).then(function(d){tPremium=!!(d&&d.tts);}).catch(function(){});
   var SR=window.SpeechRecognition||window.webkitSpeechRecognition;
   if(!SR){tEl('tmic').style.display='none';tEl('tsetupnote').textContent='Micro non disponible sur ce navigateur : vous pourrez \u00E9crire vos r\u00E9pliques.';}
+  renderBadges();
 }
 
+// ----- Audio : deverrouillage iOS + choix de voix -----
+function unlockAudio(){
+  if(tAudioUnlocked)return;
+  tAudioUnlocked=true;
+  try{
+    if(window.speechSynthesis){var u=new SpeechSynthesisUtterance(' ');u.volume=0;speechSynthesis.speak(u);}
+  }catch(e){}
+  try{
+    if(!tAudio)tAudio=new Audio();
+    tAudio.src=SILENT_WAV;
+    var p=tAudio.play();if(p&&p.catch)p.catch(function(){});
+  }catch(e){}
+}
+function pickVoice(){
+  if(!window.speechSynthesis)return;
+  var vs=speechSynthesis.getVoices().filter(function(x){return x.lang&&x.lang.indexOf('fr')===0;});
+  if(!vs.length)return;
+  var pref=['Google fran','Am\u00E9lie','Amelie','Audrey','Aur\u00E9lie','Thomas','Daniel','Enhanced','Premium','Siri'];
+  for(var i=0;i<pref.length;i++){
+    for(var j=0;j<vs.length;j++){
+      if(vs[j].name.indexOf(pref[i])>-1){tVoice=vs[j];return;}
+    }
+  }
+  tVoice=vs[0];
+}
+if(window.speechSynthesis){pickVoice();speechSynthesis.onvoiceschanged=pickVoice;}
+
+function speak(text){
+  if(tPremium){speakPremium(text);return;}
+  speakLocal(text);
+}
+function speakLocal(text){
+  if(!window.speechSynthesis)return;
+  try{
+    speechSynthesis.cancel();
+    var u=new SpeechSynthesisUtterance(text);
+    u.lang='fr-FR';
+    if(tVoice)u.voice=tVoice;
+    speechSynthesis.speak(u);
+  }catch(e){}
+}
+function speakPremium(text){
+  fetch(TRAIN_API+'/api/tts',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text:text})})
+    .then(function(r){if(!r.ok)throw 0;return r.blob();})
+    .then(function(b){
+      if(!tAudio)tAudio=new Audio();
+      tAudio.src=URL.createObjectURL(b);
+      var p=tAudio.play();
+      if(p&&p.catch)p.catch(function(){speakLocal(text);});
+    })
+    .catch(function(){tPremium=false;speakLocal(text);});
+}
+
+// ----- Configuration de session -----
 function tPick(btn){
   btn.parentNode.querySelectorAll('.thbtn').forEach(function(b){b.classList.remove('active')});
   btn.classList.add('active');
@@ -1134,7 +1264,8 @@ function tLabel(id){return tEl(id).querySelector('.thbtn.active').textContent;}
 function tRandomSel(sel){return sel.options[1+Math.floor(Math.random()*(sel.options.length-1))];}
 
 function startTrain(){
-  tMsgs=[];tBusy=false;tEnded=false;tGuess=null;tGuessLabel='';
+  unlockAudio();
+  tMsgs=[];tBusy=false;tEnded=false;tGuess=null;tGuessLabel='';tHints=0;tDrill=false;tArchive=[];
   tMystere=tEl('tmystere').checked;
   var sSel=tEl('tsoncas'),cSel=tEl('tctx');
   var sOpt=(!tMystere&&sSel.value)?sSel.options[sSel.selectedIndex]:tRandomSel(sSel);
@@ -1146,6 +1277,8 @@ function startTrain(){
   tEl('tplay').style.display='block';
   tEl('tguess').style.display='none';
   tEl('tactions').style.display='flex';
+  tEl('tendbtn').style.display='';
+  tEl('thintbtn').style.display='';
   tEl('tchat').innerHTML='';
   var prof=tMystere?'\uD83C\uDFAD Profil myst\u00E8re':(sOpt.text+' / '+cOpt.text);
   tEl('tbadge').innerHTML='<span class="lbadge lbi">'+tLabel('tscen')+' \u2014 '+tLabel('tdiff')+' \u2014 '+prof+'</span>';
@@ -1153,22 +1286,26 @@ function startTrain(){
   tEl('tinput').focus();
 }
 
-function addTMsg(role,text){
+// ----- Fil de conversation -----
+function addBubble(cls,text){
   var d=document.createElement('div');
-  d.className='tmsg '+(role==='user'?'tme':'tclient');
+  d.className='tmsg '+cls;
   d.textContent=text;
   var c=tEl('tchat');c.appendChild(d);c.scrollTop=c.scrollHeight;
 }
+function addTMsg(role,text){addBubble(role==='user'?'tme':'tclient',text);}
 
 function sendTrainInput(){
   var inp=tEl('tinput');var t=inp.value.trim();
   if(!t)return;
+  unlockAudio();
   inp.value='';
   sendTrain(t);
 }
 
 function sendTrain(text){
   if(tBusy||tEnded)return;
+  if(tDrill){drillAnswer(text);return;}
   tBusy=true;
   tMsgs.push({role:'user',content:text});
   addTMsg('user',text);
@@ -1191,25 +1328,15 @@ function trainFetch(path){
   return fetch(TRAIN_API+path,{
     method:'POST',
     headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({scenario:tVal('tscen'),difficulte:tVal('tdiff'),profil:tProfil,messages:tMsgs})
+    body:JSON.stringify({scenario:tVal('tscen'),difficulte:tVal('tdiff'),profil:tProfil,messages:tMsgs,hints:tHints})
   }).then(function(r){return r.json();});
 }
 
-function speak(text){
-  if(!window.speechSynthesis)return;
-  try{
-    speechSynthesis.cancel();
-    var u=new SpeechSynthesisUtterance(text);
-    u.lang='fr-FR';
-    var v=speechSynthesis.getVoices().filter(function(x){return x.lang&&x.lang.indexOf('fr')===0;});
-    if(v.length)u.voice=v[0];
-    speechSynthesis.speak(u);
-  }catch(e){}
-}
-
+// ----- Micro -----
 function toggleMic(){
   var SR=window.SpeechRecognition||window.webkitSpeechRecognition;
   if(!SR)return;
+  unlockAudio();
   if(tRecOn){try{tRec.stop();}catch(e){}return;}
   try{speechSynthesis.cancel();}catch(e){}
   tRec=new SR();
@@ -1238,8 +1365,24 @@ function toggleMic(){
   try{tRec.start();}catch(e){tRecOn=false;tEl('tmic').classList.remove('rec');}
 }
 
+// ----- Indice du formateur -----
+function askHint(){
+  if(tBusy||tEnded||tDrill)return;
+  if(tMsgs.length<1){setTStatus('Commencez la conversation avant de demander un indice.');return;}
+  tBusy=true;
+  setTStatus('Le formateur r\u00E9fl\u00E9chit\u2026');
+  trainFetch('/api/hint').then(function(data){
+    tBusy=false;
+    if(data.error){setTStatus(data.error);return;}
+    tHints++;
+    addBubble('thint','\uD83D\uDCA1 '+data.hint);
+    setTStatus('');
+  }).catch(function(){tBusy=false;setTStatus('Serveur injoignable. R\u00E9essayez.');});
+}
+
+// ----- Fin de session et debriefing -----
 function endTrain(){
-  if(tBusy)return;
+  if(tBusy||tDrill)return;
   var userTurns=tMsgs.filter(function(m){return m.role==='user';}).length;
   if(userTurns<1){setTStatus('Parlez au moins une fois avant le d\u00E9briefing !');return;}
   if(tMystere&&tGuess===null){
@@ -1252,6 +1395,7 @@ function endTrain(){
 }
 
 function guessSoncas(btn){
+  unlockAudio();
   tGuess=btn.getAttribute('data-v');
   tGuessLabel=btn.textContent;
   tEl('tguess').style.display='none';
@@ -1260,6 +1404,7 @@ function guessSoncas(btn){
 
 function runDebrief(){
   tBusy=true;tEnded=true;
+  tArchive=tMsgs.slice();
   try{speechSynthesis.cancel();}catch(e){}
   setTStatus('Le formateur pr\u00E9pare votre d\u00E9briefing\u2026 (environ 30 s)');
   trainFetch('/api/debrief').then(function(data){
@@ -1274,8 +1419,21 @@ function runDebrief(){
 
 function tEsc(s){var d=document.createElement('div');d.textContent=String(s==null?'':s);return d.innerHTML;}
 
+function tNorm(s){return String(s||'').toLowerCase().replace(/[^a-z0-9\u00E0\u00E2\u00E4\u00E9\u00E8\u00EA\u00EB\u00EE\u00EF\u00F4\u00F6\u00F9\u00FB\u00FC\u00E7]+/g,' ').trim();}
+function findMomentKeep(cit){
+  var c=tNorm(cit).slice(0,30);
+  if(!c)return -1;
+  for(var i=0;i<tArchive.length;i++){
+    if(tNorm(tArchive[i].content).indexOf(c)>-1){
+      return tArchive[i].role==='user'?i:i+1;
+    }
+  }
+  return -1;
+}
+
 function showDebrief(d){
   tEl('tplay').style.display='none';
+  recordSession({sc:tVal('tscen'),di:tVal('tdiff'),note:d.note|0});
   var h='';
   if(tMystere){
     var ok=tGuess===tProfil.soncas;
@@ -1284,20 +1442,129 @@ function showDebrief(d){
   h+='<div class="score"><div class="snum">'+tEsc(d.note)+'/20</div><div class="slbl">'+tEsc(d.resume)+'</div></div>';
   h+='<div class="cc"><h3>Points forts</h3><ul class="blist">'+d.points_forts.map(function(x){return '<li>'+tEsc(x)+'</li>';}).join('')+'</ul></div>';
   h+='<div class="cc"><h3>\u00C0 travailler</h3><ul class="blist">'+d.axes_travail.map(function(x){return '<li>'+tEsc(x)+'</li>';}).join('')+'</ul></div>';
-  h+='<div class="cc"><h3>Moments cl\u00E9s</h3>'+d.moments_cles.map(function(m){return '<div class="qb" style="margin-bottom:8px">\u00AB '+tEsc(m.citation)+' \u00BB</div><div class="kp" style="margin-bottom:12px">'+tEsc(m.commentaire)+'</div>';}).join('')+'</div>';
+  h+='<div class="cc"><h3>Moments cl\u00E9s</h3>'+d.moments_cles.map(function(m){
+    var keep=findMomentKeep(m.citation);
+    var replay=keep>0?'<button class="btn-s" style="margin-bottom:12px" onclick="replayMoment('+keep+')">\u21A9 Rejouer ce moment</button>':'';
+    return '<div class="qb" style="margin-bottom:8px">\u00AB '+tEsc(m.citation)+' \u00BB</div><div class="kp" style="margin-bottom:'+(replay?'8px':'12px')+'">'+tEsc(m.commentaire)+'</div>'+replay;
+  }).join('')+'</div>';
   h+='<div style="display:flex;gap:8px;margin-top:1rem"><button class="btn-p" onclick="restartTrain()">Nouvelle session</button></div>';
   tEl('tdebrief').innerHTML=h;
   tEl('tdebrief').style.display='block';
 }
 
+function replayMoment(keep){
+  unlockAudio();
+  tMsgs=tArchive.slice(0,keep);
+  tEnded=false;tBusy=false;tGuess=null;tGuessLabel='';
+  tEl('tdebrief').style.display='none';
+  tEl('tplay').style.display='block';
+  tEl('tguess').style.display='none';
+  tEl('tactions').style.display='flex';
+  tEl('tchat').innerHTML='';
+  tMsgs.forEach(function(m){addTMsg(m.role,m.content);});
+  var c=tEl('tchat');c.scrollTop=c.scrollHeight;
+  setTStatus('On rejoue \u00E0 partir d\u2019ici \u2014 \u00E0 vous !');
+  tEl('tinput').focus();
+}
+
 function restartTrain(){
   tEl('tdebrief').style.display='none';
   tEl('tsetup').style.display='block';
+  renderBadges();
 }
 function quitTrain(){
   try{speechSynthesis.cancel();}catch(e){}
+  tDrill=false;
+  tEl('tendbtn').style.display='';
+  tEl('thintbtn').style.display='';
   tEl('tplay').style.display='none';
   tEl('tsetup').style.display='block';
+  renderBadges();
+}
+
+// ----- Drill objections eclair -----
+function startDrill(){
+  unlockAudio();
+  tDrill=true;tMsgs=[];tBusy=false;tEnded=false;tDrillIdx=0;tDrillScore=0;tDrillList=[];
+  tEl('tsetup').style.display='none';
+  tEl('tdebrief').style.display='none';
+  tEl('tplay').style.display='block';
+  tEl('tguess').style.display='none';
+  tEl('tactions').style.display='flex';
+  tEl('tendbtn').style.display='none';
+  tEl('thintbtn').style.display='none';
+  tEl('tchat').innerHTML='';
+  tEl('tbadge').innerHTML='<span class="lbadge lba">\u26A1 Drill objections \u2014 5 objections, 1 r\u00E9plique chacune</span>';
+  setTStatus('Chargement des objections\u2026 (jusqu\u2019\u00E0 50 s si le serveur \u00E9tait endormi)');
+  fetch(TRAIN_API+'/api/objections').then(function(r){return r.json();}).then(function(d){
+    tDrillList=(d&&d.objections)||[];
+    if(!tDrillList.length){setTStatus('Serveur injoignable. R\u00E9essayez.');return;}
+    setTStatus('');
+    drillNext();
+  }).catch(function(){setTStatus('Serveur injoignable. R\u00E9essayez.');});
+}
+function drillNext(){
+  var o=tDrillList[tDrillIdx];
+  addBubble('tclient','('+(tDrillIdx+1)+'/'+tDrillList.length+') '+o.text);
+  speak(o.text);
+  setTStatus('Votre r\u00E9ponse, en une seule r\u00E9plique !');
+}
+function drillAnswer(text){
+  tBusy=true;
+  addBubble('tme',text);
+  setTStatus('Le formateur \u00E9value\u2026');
+  fetch(TRAIN_API+'/api/drill',{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({objection:tDrillList[tDrillIdx].text,reponse:text})
+  }).then(function(r){return r.json();}).then(function(d){
+    tBusy=false;
+    if(d.error){setTStatus(d.error);tEl('tchat').lastChild.remove();tEl('tinput').value=text;return;}
+    tDrillScore+=d.eval.score;
+    addBubble('tcoach','\uD83D\uDCCB '+d.eval.score+'/4 \u2014 '+d.eval.commentaire);
+    tDrillIdx++;
+    if(tDrillIdx<tDrillList.length){setTimeout(drillNext,900);}
+    else{drillEnd();}
+  }).catch(function(){
+    tBusy=false;setTStatus('Serveur injoignable. R\u00E9essayez.');
+    tEl('tchat').lastChild.remove();tEl('tinput').value=text;
+  });
+}
+function drillEnd(){
+  tEnded=true;
+  var max=tDrillList.length*4;
+  var note20=Math.round(tDrillScore/max*20);
+  recordSession({drill:1,note:note20});
+  var msg=note20>=16?'R\u00E9flexes aff\u00FBt\u00E9s, beau travail !':(note20>=10?'De bons r\u00E9flexes \u2014 continuez \u00E0 driller pour automatiser l\u2019entonnoir.':'L\u2019entonnoir n\u2019est pas encore un r\u00E9flexe : accepter, isoler, pr\u00E9-closer. On refait un tour ?');
+  addBubble('tcoach','\uD83C\uDFC1 Score final : '+tDrillScore+'/'+max+' (soit '+note20+'/20). '+msg);
+  setTStatus('Drill termin\u00E9 \u2014 \u00AB Abandonner \u00BB pour revenir au menu.');
+}
+
+// ----- Badges de certification -----
+function histLoad(){
+  try{return JSON.parse(localStorage.getItem(HIST_KEY)||'[]');}catch(e){return [];}
+}
+function recordSession(rec){
+  try{
+    var h=histLoad();rec.t=Date.now();h.push(rec);
+    localStorage.setItem(HIST_KEY,JSON.stringify(h.slice(-200)));
+  }catch(e){}
+  renderBadges();
+}
+function renderBadges(){
+  var box=tEl('tbadges');if(!box)return;
+  var h=histLoad();
+  var html='';var allWon=true;
+  document.querySelectorAll('#tscen .thbtn').forEach(function(b){
+    var sc=b.getAttribute('data-v');
+    var won=h.some(function(x){return x.sc===sc&&x.di==='difficile'&&x.note>=14;});
+    var best=h.filter(function(x){return x.sc===sc;}).reduce(function(m,x){return Math.max(m,x.note||0);},-1);
+    if(!won)allWon=false;
+    var tip=won?'Valid\u00E9 : 14/20 ou plus face au client difficile':('\u00C0 valider : 14/20 face au client difficile'+(best>-1?' \u2014 votre record : '+best+'/20':''));
+    html+='<span class="tbadge '+(won?'won':'locked')+'" title="'+tip+'">'+(won?'\uD83C\uDFC5':'\uD83D\uDD12')+' '+b.textContent+'</span>';
+  });
+  html+='<span class="tbadge '+(allWon?'won':'locked')+'" title="Les 4 sc\u00E9narios valid\u00E9s face au client difficile">'+(allWon?'\uD83C\uDFC6':'\uD83D\uDD12')+' Tolt\u00E8que</span>';
+  box.innerHTML=html;
 }
 </script>
 

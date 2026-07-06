@@ -210,4 +210,68 @@ const DEBRIEF_SCHEMA = {
   },
 };
 
-module.exports = { buildRoleplaySystem, buildDebriefSystem, DEBRIEF_SCHEMA, SCENARIOS, DIFFICULTES };
+// ===== Drill objections eclair =====
+
+const OBJECTIONS = [
+  { text: "Je dois en parler à ma femme avant de me décider.", famille: "excuse" },
+  { text: "J'ai besoin de réfléchir encore un peu.", famille: "excuse" },
+  { text: "Les agences, j'ai eu une très mauvaise expérience, on ne s'est jamais occupé de moi.", famille: "manque de confiance" },
+  { text: "Qu'est-ce qui me prouve que vous allez vraiment vous en occuper, de ma maison ?", famille: "manque de confiance" },
+  { text: "Une autre agence me propose exactement les mêmes services, mais moins cher.", famille: "comparaison" },
+  { text: "Je préfère d'abord essayer de vendre seul, entre particuliers.", famille: "comparaison" },
+  { text: "Pourquoi je signerais avec vous plutôt qu'avec l'agence d'en face ?", famille: "comparaison" },
+  { text: "Vos honoraires sont beaucoup trop élevés pour ce que vous faites.", famille: "coût des frais" },
+  { text: "Les diagnostics, c'est encore des frais... on verra ça plus tard.", famille: "coût des frais" },
+  { text: "Votre estimation est trop basse, ma maison vaut bien plus que ça.", famille: "argent" },
+  { text: "J'en veux 380 000, pas un euro de moins.", famille: "argent" },
+  { text: "Ça fait deux mois sans offre, mais baisser le prix, il en est hors de question.", famille: "argent" },
+  { text: "Je veux bien vous confier la vente, mais en mandat simple, avec plusieurs agences.", famille: "comparaison" },
+  { text: "Trois mois d'exclusivité c'est trop long, je veux pouvoir arrêter quand je veux.", famille: "excuse" },
+  { text: "Mon budget ? Montrez-moi d'abord ce que vous avez à vendre.", famille: "découverte acquéreur" },
+  { text: "Envoyez-moi juste les annonces par mail, pas besoin de se rencontrer.", famille: "découverte acquéreur" },
+  { text: "Cette maison me plaît mais je vais réfléchir, je vous rappelle la semaine prochaine.", famille: "excuse" },
+  { text: "On a visité avec une autre agence des maisons moins chères au mètre carré.", famille: "comparaison" },
+];
+
+function buildDrillSystem(objection) {
+  return [
+    "Tu es formateur Century 21 (méthode interne Kadima). Exercice éclair : un client vient de dire au conseiller l'objection suivante :",
+    "« " + objection + " »",
+    "Le conseiller répond en UNE réplique. Évalue cette réplique selon la méthode :",
+    "- L'entonnoir : Accepter (« je comprends ») → Reformuler/Qualifier → Isoler (« est-ce la seule chose qui vous gêne ? ») → Pré-closer → Répondre → Closer.",
+    "- Les parades par famille : manque de confiance (avis clients, résultats, garantie d'action, comptes rendus), excuse (questions ouvertes, « est-ce important pour vous ? », délai de rétractation), comparaison (« que voulez-vous comparer ? », clause 50/50, gain de temps, vrai métier), coût des frais (liste des services, détail des honoraires, exemple d'autres professions), argent (coût de la non-vente, marché réel vs théorique, balance vendus/invendus).",
+    "Barème sur 4 : 0-1 = réponse frontale ou argumentation directe sans accepter ; 2 = acceptation présente mais traitement incomplet ; 3 = accepte et isole ou qualifie correctement ; 4 = mini-entonnoir complet et naturel, adapté au format court.",
+    "Ton commentaire : 2 phrases max, tutoiement, style debrief oral, et termine par la parade attendue en une phrase.",
+  ].join("\n");
+}
+
+const DRILL_SCHEMA = {
+  type: "object",
+  additionalProperties: false,
+  required: ["score", "commentaire"],
+  properties: {
+    score: { type: "integer", description: "Note de 0 à 4" },
+    commentaire: { type: "string", description: "2 phrases max, tutoiement, avec la parade attendue" },
+  },
+};
+
+function buildHintSystem(scenario) {
+  const sc = pick(SCENARIOS, scenario, "r1");
+  return [
+    "Tu es formateur Century 21 (méthode interne Kadima). Tu observes un jeu de rôle en cours (scénario : " + sc.label + ").",
+    "Le conseiller (rôle user) te demande un indice. En te basant sur les derniers échanges, souffle-lui la PROCHAINE action selon la méthode : " + sc.attendus,
+    "Réponds en 1 ou 2 phrases maximum, tutoiement, impératif (« isole l'objection avant de répondre »), sans jouer le client et sans donner une réplique toute faite complète.",
+  ].join("\n");
+}
+
+module.exports = {
+  buildRoleplaySystem,
+  buildDebriefSystem,
+  buildDrillSystem,
+  buildHintSystem,
+  DEBRIEF_SCHEMA,
+  DRILL_SCHEMA,
+  OBJECTIONS,
+  SCENARIOS,
+  DIFFICULTES,
+};
