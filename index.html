@@ -1296,6 +1296,7 @@ function addBubble(cls,text){
 function addTMsg(role,text){addBubble(role==='user'?'tme':'tclient',text);}
 
 function sendTrainInput(){
+  if(tBusy||tEnded)return;
   var inp=tEl('tinput');var t=inp.value.trim();
   if(!t)return;
   unlockAudio();
@@ -1474,7 +1475,7 @@ function restartTrain(){
 }
 function quitTrain(){
   try{speechSynthesis.cancel();}catch(e){}
-  tDrill=false;
+  tDrill=false;tBusy=false;tEnded=false;
   tEl('tendbtn').style.display='';
   tEl('thintbtn').style.display='';
   tEl('tplay').style.display='none';
@@ -1485,7 +1486,7 @@ function quitTrain(){
 // ----- Drill objections eclair -----
 function startDrill(){
   unlockAudio();
-  tDrill=true;tMsgs=[];tBusy=false;tEnded=false;tDrillIdx=0;tDrillScore=0;tDrillList=[];
+  tDrill=true;tMsgs=[];tBusy=true;tEnded=false;tDrillIdx=0;tDrillScore=0;tDrillList=[];
   tEl('tsetup').style.display='none';
   tEl('tdebrief').style.display='none';
   tEl('tplay').style.display='block';
@@ -1499,6 +1500,7 @@ function startDrill(){
   fetch(TRAIN_API+'/api/objections').then(function(r){return r.json();}).then(function(d){
     tDrillList=(d&&d.objections)||[];
     if(!tDrillList.length){setTStatus('Serveur injoignable. R\u00E9essayez.');return;}
+    tBusy=false;
     setTStatus('');
     drillNext();
   }).catch(function(){setTStatus('Serveur injoignable. R\u00E9essayez.');});
@@ -1510,13 +1512,15 @@ function drillNext(){
   setTStatus('Votre r\u00E9ponse, en une seule r\u00E9plique !');
 }
 function drillAnswer(text){
+  var o=tDrillList[tDrillIdx];
+  if(!o)return;
   tBusy=true;
   addBubble('tme',text);
   setTStatus('Le formateur \u00E9value\u2026');
   fetch(TRAIN_API+'/api/drill',{
     method:'POST',
     headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({objection:tDrillList[tDrillIdx].text,reponse:text})
+    body:JSON.stringify({objection:o.text,reponse:text})
   }).then(function(r){return r.json();}).then(function(d){
     tBusy=false;
     if(d.error){setTStatus(d.error);tEl('tchat').lastChild.remove();tEl('tinput').value=text;return;}
